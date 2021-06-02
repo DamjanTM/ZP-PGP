@@ -1,6 +1,15 @@
 package etf.openpgp.pd170312duu170714d;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
@@ -59,6 +68,50 @@ public class ElGamal {
 		}
     }
 	
+	public void export_ElGamal_keypair() {
+		
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		ObjectOutputStream out = null;
+		try {
+		  out = new ObjectOutputStream(bos);   
+		  out.writeObject(my_key_pair);
+		  out.flush();
+		  byte[] export_bytes = bos.toByteArray();
+		  try (FileOutputStream stream = new FileOutputStream("../eg_keys.asc")) {
+			    stream.write(export_bytes);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+		  try {
+		    bos.close();
+		  } catch (IOException ex) {
+		    // ignore close exception
+		  }
+		}
+	}
+	
+	public KeyPair import_ElGamal_keypair(String path) {
+		KeyPair imported = null;
+		if(path == null)path = "../eg_keys.asc";
+		try {
+			byte[] import_array = Files.readAllBytes(Paths.get(path));
+	        try (ByteArrayInputStream b = new ByteArrayInputStream(import_array)) {
+	            try (ObjectInputStream o = new ObjectInputStream(b)) {
+	            	imported = (KeyPair) o.readObject();
+	            } catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	        }
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return imported;
+	}
+	
 	public static void main( String args[]) throws GeneralSecurityException {
 		Security.addProvider(new BouncyCastleProvider());
 
@@ -68,7 +121,10 @@ public class ElGamal {
 		System.out.println("Public key:" + lg.my_key_pair.getPublic().getEncoded());
 		System.out.println("Private key:" + lg.my_key_pair.getPrivate().getEncoded());
 		System.out.println("Enkriptovacemo poruku '" + new String(msg.getBytes(), StandardCharsets.UTF_8) + "'");
-		
+		lg.export_ElGamal_keypair();
+		KeyPair imported_kp = lg.import_ElGamal_keypair(null);
+		if(imported_kp.equals(lg.my_key_pair))System.out.println("IMPORT YAY");
+		else System.out.println("IMPORT NAY");
 		byte[] encryptedData = encrypt(lg.my_key_pair.getPublic(), msg.getBytes());
 		
 		System.out.println("Enkriptovani podaci: " + encryptedData);
