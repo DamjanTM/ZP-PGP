@@ -14,6 +14,7 @@ import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -22,7 +23,9 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.InvalidParameterSpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.DHParameterSpec;
@@ -74,7 +77,7 @@ public class ElGamal {
 		ObjectOutputStream out = null;
 		try {
 		  out = new ObjectOutputStream(bos);   
-		  out.writeObject(my_key_pair);
+		  out.writeObject(my_key_pair.getPrivate().getEncoded());
 		  out.flush();
 		  byte[] export_bytes = bos.toByteArray();
 		  try (FileOutputStream stream = new FileOutputStream("../eg_keys.asc")) {
@@ -92,14 +95,29 @@ public class ElGamal {
 		}
 	}
 	
-	public KeyPair import_ElGamal_keypair(String path) {
+	public KeyPair import_ElGamal_keypair2(String path) {
+		KeyPair imported = null;
+		if(path == null)path = "../eg_keys.asc";
+		try {
+			byte[] privateKeyBytes = Files.readAllBytes(Paths.get(path));
+        	KeyFactory kf = KeyFactory.getInstance("ElGamal"); // or "EC" or whatever
+        	PrivateKey privateKey = kf.generatePrivate(new PKCS8EncodedKeySpec(privateKeyBytes));
+        	imported = new KeyPair(null, privateKey);
+		} catch (IOException | InvalidKeySpecException | NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return imported;
+	}
+	
+	public KeyPair import_ElGamal_keypair1(String path) {
 		KeyPair imported = null;
 		if(path == null)path = "../eg_keys.asc";
 		try {
 			byte[] import_array = Files.readAllBytes(Paths.get(path));
 	        try (ByteArrayInputStream b = new ByteArrayInputStream(import_array)) {
 	            try (ObjectInputStream o = new ObjectInputStream(b)) {
-	            	imported = (KeyPair) o.readObject();
+	            	imported = new KeyPair(null, new PrivateKey(import_array));
 	            } catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -112,6 +130,17 @@ public class ElGamal {
 		return imported;
 	}
 	
+	private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+	public static String bytesToHex(byte[] bytes) {
+	    char[] hexChars = new char[bytes.length * 2];
+	    for (int j = 0; j < bytes.length; j++) {
+	        int v = bytes[j] & 0xFF;
+	        hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+	        hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+	    }
+	    return new String(hexChars);
+	}
+	
 	public static void main( String args[]) throws GeneralSecurityException {
 		Security.addProvider(new BouncyCastleProvider());
 
@@ -122,9 +151,11 @@ public class ElGamal {
 		System.out.println("Private key:" + lg.my_key_pair.getPrivate().getEncoded());
 		System.out.println("Enkriptovacemo poruku '" + new String(msg.getBytes(), StandardCharsets.UTF_8) + "'");
 		lg.export_ElGamal_keypair();
-		KeyPair imported_kp = lg.import_ElGamal_keypair(null);
-		if(imported_kp.equals(lg.my_key_pair))System.out.println("IMPORT YAY");
+		KeyPair imported_kp = lg.import_ElGamal_keypair1(null);
+		if(lg.my_key_pair.getPrivate().equals(imported_kp.getPrivate()))System.out.println("IMPORT YAY");
 		else System.out.println("IMPORT NAY");
+		System.out.println("Original KEY: " + bytesToHex(imported_kp.getPrivate().getEncoded()));
+		System.out.println("IMPORTED KEY: " + bytesToHex(imported_kp.getPrivate().getEncoded()));
 		byte[] encryptedData = encrypt(lg.my_key_pair.getPublic(), msg.getBytes());
 		
 		System.out.println("Enkriptovani podaci: " + encryptedData);
