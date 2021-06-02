@@ -1,6 +1,5 @@
 package etf.openpgp.pd170312duu170714d;
 
-import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -13,9 +12,6 @@ import java.security.Security;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class DSA {
-	private char type='t';
-	private String filename;
-	private String data;
 	private KeyPair my_key_pair;
 	
 	public static byte[] generateSignature(PrivateKey ecPrivate_, byte[] input_) throws GeneralSecurityException
@@ -55,15 +51,15 @@ public class DSA {
 		System.out.println("Private key:" + ldp.my_key_pair.getPrivate().getEncoded());
 		System.out.println("Potpisacemo poruku '" + msg + "'");
 		
-		byte[] signature = ldp.generateSignature(ldp.my_key_pair.getPrivate(), msg.getBytes());
+		byte[] signature = generateSignature(ldp.my_key_pair.getPrivate(), msg.getBytes());
 		
 		System.out.println("Potpis: " + signature);
 		
-		signature = ldp.generateSignature(ldp.my_key_pair.getPrivate(), msg.getBytes());
+		signature = generateSignature(ldp.my_key_pair.getPrivate(), msg.getBytes());
 		
 		System.out.println("Potpis: " + signature);
 		
-		boolean worked = ldp.verifySignature(ldp.my_key_pair.getPublic(), msg.getBytes(), signature);
+		boolean worked = verifySignature(ldp.my_key_pair.getPublic(), msg.getBytes(), signature);
 		
 		if (worked) {
 			System.out.println("Jupi!");
