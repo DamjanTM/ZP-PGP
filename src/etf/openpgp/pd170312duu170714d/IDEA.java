@@ -13,31 +13,31 @@ import javax.crypto.SecretKey;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-public class DES {
+public class IDEA {
 	private SecretKey my_key;
 	
 	public static byte[] encrypt(SecretKey key_, byte[] input_) throws GeneralSecurityException
 	{
 		SecureRandom rand = new SecureRandom();
 		 
-		Cipher cipher = Cipher.getInstance("DESEDE", "BC");
+		Cipher cipher = Cipher.getInstance("IDEA", "BC");
 		cipher.init(Cipher.ENCRYPT_MODE, key_, rand);
 		return cipher.doFinal(input_);
 	}
 	
 	public static byte[] decrypt(SecretKey key_, byte[] encryptedData_) throws GeneralSecurityException
 	{
-		Cipher cipher = Cipher.getInstance("DESEDE", "BC");
+		Cipher cipher = Cipher.getInstance("IDEA", "BC");
 		cipher.init(Cipher.DECRYPT_MODE, key_);
 		return cipher.doFinal(encryptedData_);
 	}
 	
-	public void generate_DES_key(int strength_) {
+	public void generate_IDEA_key(int strength_) {
         	SecureRandom rand = new SecureRandom();
             KeyGenerator keyGen;
             
 			try {
-				keyGen = KeyGenerator.getInstance("DESEDE", "BC");
+				keyGen = KeyGenerator.getInstance("IDEA", "BC");
 	            keyGen.init(strength_, rand);
 	            this.my_key = keyGen.generateKey();
 			} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
@@ -50,16 +50,16 @@ public class DES {
 		Security.addProvider(new BouncyCastleProvider());
 
 		String msg = "We ready we ready we ready! FOR Y'ALL!";
-		DES des = new DES();
-		des.generate_DES_key(128);
-		System.out.println("Key:" + des.my_key.getEncoded());
+		IDEA idea = new IDEA();
+		idea.generate_IDEA_key(128);
+		System.out.println("Key:" + idea.my_key.getEncoded());
 		System.out.println("Enkriptovacemo poruku '" + new String(msg.getBytes(), StandardCharsets.UTF_8) + "'");
 		
-		byte[] encryptedData = encrypt(des.my_key, msg.getBytes());
+		byte[] encryptedData = encrypt(idea.my_key, msg.getBytes());
 		
 		System.out.println("Enkriptovani podaci: " + encryptedData);
 		
-		byte[] decryptedData = decrypt(des.my_key, encryptedData);
+		byte[] decryptedData = decrypt(idea.my_key, encryptedData);
 		
 		System.out.println("Dekriptovani podaci: " + new String(decryptedData, StandardCharsets.UTF_8));
 		
