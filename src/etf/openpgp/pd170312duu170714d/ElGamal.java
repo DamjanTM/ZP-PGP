@@ -1,11 +1,16 @@
 package etf.openpgp.pd170312duu170714d;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -23,9 +28,11 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
+import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.DHParameterSpec;
@@ -72,37 +79,43 @@ public class ElGamal {
     }
 	
 	public void export_ElGamal_keypair() {
-		
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		ObjectOutputStream out = null;
-		try {
-		  out = new ObjectOutputStream(bos);   
-		  out.writeObject(my_key_pair.getPrivate().getEncoded());
-		  out.flush();
-		  byte[] export_bytes = bos.toByteArray();
+		  System.out.println("exported byte array: priv: " + bytesToHex(my_key_pair.getPrivate().getEncoded()));
+		  System.out.println("pub: " + bytesToHex(my_key_pair.getPublic().getEncoded()));
 		  try (FileOutputStream stream = new FileOutputStream("../eg_keys.asc")) {
-			    stream.write(export_bytes);
+			  	BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(stream));
+			  	bw.write(bytesToHex(my_key_pair.getPrivate().getEncoded()));
+			  	bw.newLine();
+			  	bw.write(bytesToHex(my_key_pair.getPublic().getEncoded()));
+			  	bw.close();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-		  try {
-		    bos.close();
-		  } catch (IOException ex) {
-		    // ignore close exception
-		  }
-		}
+		  
+		
 	}
 	
-	public KeyPair import_ElGamal_keypair2(String path) {
+	public KeyPair import_ElGamal_keypair(String path) {
 		KeyPair imported = null;
 		if(path == null)path = "../eg_keys.asc";
+		
 		try {
-			byte[] privateKeyBytes = Files.readAllBytes(Paths.get(path));
+			BufferedReader reader = new BufferedReader(new FileReader(path));
+			String privateKeyString = reader.readLine();
+			String publicKeyString = reader.readLine();
+			byte[] privateKeyBytes = hexToBytes(privateKeyString);
+			byte[] publicKeyBytes = hexToBytes(publicKeyString);
+			System.out.println("imported byte array: priv :" + privateKeyString);
+			System.out.println("pub: " + publicKeyString);
         	KeyFactory kf = KeyFactory.getInstance("ElGamal"); // or "EC" or whatever
-        	PrivateKey privateKey = kf.generatePrivate(new PKCS8EncodedKeySpec(privateKeyBytes));
-        	imported = new KeyPair(null, privateKey);
+        	PKCS8EncodedKeySpec encodedKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+			PrivateKey privateKey = kf.generatePrivate(encodedKeySpec);
+			EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
+			PublicKey publicKey = kf.generatePublic(publicKeySpec);
+			imported = new KeyPair(publicKey, privateKey);
 		} catch (IOException | InvalidKeySpecException | NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -110,24 +123,32 @@ public class ElGamal {
 		return imported;
 	}
 	
-	public KeyPair import_ElGamal_keypair1(String path) {
-		KeyPair imported = null;
-		if(path == null)path = "../eg_keys.asc";
-		try {
-			byte[] import_array = Files.readAllBytes(Paths.get(path));
-	        try (ByteArrayInputStream b = new ByteArrayInputStream(import_array)) {
-	            try (ObjectInputStream o = new ObjectInputStream(b)) {
-	            	imported = new KeyPair(null, new PrivateKey(import_array));
-	            } catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-	        }
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return imported;
+	private int toDigit(char hexChar) {
+	    int digit = Character.digit(hexChar, 16);
+	    if(digit == -1) {
+	        throw new IllegalArgumentException(
+	          "Invalid Hexadecimal Character: "+ hexChar);
+	    }
+	    return digit;
+	}
+	
+	public byte hexToByte(String hexString) {
+	    int firstDigit = toDigit(hexString.charAt(0));
+	    int secondDigit = toDigit(hexString.charAt(1));
+	    return (byte) ((firstDigit << 4) + secondDigit);
+	}
+	
+	public byte[] hexToBytes(String hexString) {
+	    if (hexString.length() % 2 == 1) {
+	        throw new IllegalArgumentException(
+	          "Invalid hexadecimal String supplied.");
+	    }
+	    
+	    byte[] bytes = new byte[hexString.length() / 2];
+	    for (int i = 0; i < hexString.length(); i += 2) {
+	        bytes[i / 2] = hexToByte(hexString.substring(i, i + 2));
+	    }
+	    return bytes;
 	}
 	
 	private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
@@ -151,8 +172,8 @@ public class ElGamal {
 		System.out.println("Private key:" + lg.my_key_pair.getPrivate().getEncoded());
 		System.out.println("Enkriptovacemo poruku '" + new String(msg.getBytes(), StandardCharsets.UTF_8) + "'");
 		lg.export_ElGamal_keypair();
-		KeyPair imported_kp = lg.import_ElGamal_keypair1(null);
-		if(lg.my_key_pair.getPrivate().equals(imported_kp.getPrivate()))System.out.println("IMPORT YAY");
+		KeyPair imported_kp = lg.import_ElGamal_keypair(null);
+		if(lg.my_key_pair.getPrivate().equals(imported_kp.getPrivate()) && lg.my_key_pair.getPublic().equals(imported_kp.getPublic()))System.out.println("IMPORT YAY");
 		else System.out.println("IMPORT NAY");
 		System.out.println("Original KEY: " + bytesToHex(imported_kp.getPrivate().getEncoded()));
 		System.out.println("IMPORTED KEY: " + bytesToHex(imported_kp.getPrivate().getEncoded()));
