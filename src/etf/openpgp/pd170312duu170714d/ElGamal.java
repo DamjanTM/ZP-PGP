@@ -79,13 +79,11 @@ public class ElGamal {
     }
 	
 	public void export_ElGamal_keypair() {
-		  System.out.println("exported byte array: priv: " + bytesToHex(my_key_pair.getPrivate().getEncoded()));
-		  System.out.println("pub: " + bytesToHex(my_key_pair.getPublic().getEncoded()));
 		  try (FileOutputStream stream = new FileOutputStream("../eg_keys.asc")) {
 			  	BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(stream));
-			  	bw.write(bytesToHex(my_key_pair.getPrivate().getEncoded()));
+			  	bw.write(KeyTools.bytesToHex(my_key_pair.getPrivate().getEncoded()));
 			  	bw.newLine();
-			  	bw.write(bytesToHex(my_key_pair.getPublic().getEncoded()));
+			  	bw.write(KeyTools.bytesToHex(my_key_pair.getPublic().getEncoded()));
 			  	bw.close();
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
@@ -94,20 +92,17 @@ public class ElGamal {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		  
-		
 	}
 	
 	public KeyPair import_ElGamal_keypair(String path) {
 		KeyPair imported = null;
 		if(path == null)path = "../eg_keys.asc";
-		
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(path));
 			String privateKeyString = reader.readLine();
 			String publicKeyString = reader.readLine();
-			byte[] privateKeyBytes = hexToBytes(privateKeyString);
-			byte[] publicKeyBytes = hexToBytes(publicKeyString);
+			byte[] privateKeyBytes = KeyTools.hexToBytes(privateKeyString);
+			byte[] publicKeyBytes = KeyTools.hexToBytes(publicKeyString);
 			System.out.println("imported byte array: priv :" + privateKeyString);
 			System.out.println("pub: " + publicKeyString);
         	KeyFactory kf = KeyFactory.getInstance("ElGamal"); // or "EC" or whatever
@@ -123,45 +118,7 @@ public class ElGamal {
 		return imported;
 	}
 	
-	private int toDigit(char hexChar) {
-	    int digit = Character.digit(hexChar, 16);
-	    if(digit == -1) {
-	        throw new IllegalArgumentException(
-	          "Invalid Hexadecimal Character: "+ hexChar);
-	    }
-	    return digit;
-	}
-	
-	public byte hexToByte(String hexString) {
-	    int firstDigit = toDigit(hexString.charAt(0));
-	    int secondDigit = toDigit(hexString.charAt(1));
-	    return (byte) ((firstDigit << 4) + secondDigit);
-	}
-	
-	public byte[] hexToBytes(String hexString) {
-	    if (hexString.length() % 2 == 1) {
-	        throw new IllegalArgumentException(
-	          "Invalid hexadecimal String supplied.");
-	    }
-	    
-	    byte[] bytes = new byte[hexString.length() / 2];
-	    for (int i = 0; i < hexString.length(); i += 2) {
-	        bytes[i / 2] = hexToByte(hexString.substring(i, i + 2));
-	    }
-	    return bytes;
-	}
-	
-	private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
-	public static String bytesToHex(byte[] bytes) {
-	    char[] hexChars = new char[bytes.length * 2];
-	    for (int j = 0; j < bytes.length; j++) {
-	        int v = bytes[j] & 0xFF;
-	        hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-	        hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
-	    }
-	    return new String(hexChars);
-	}
-	
+
 	public static void main( String args[]) throws GeneralSecurityException {
 		Security.addProvider(new BouncyCastleProvider());
 
