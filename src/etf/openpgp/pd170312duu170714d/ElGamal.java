@@ -2,19 +2,12 @@ package etf.openpgp.pd170312duu170714d;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
@@ -58,7 +51,7 @@ public class ElGamal {
 		return cipher.doFinal(encryptedData_);
 	}
 	
-	public void generate_ElGamal_keypair(int size_) {
+	public void generate_keypair(int size_) {
         try {
         	AlgorithmParameterGenerator a = AlgorithmParameterGenerator.getInstance("ElGamal", "BC");
             a.init(size_, new SecureRandom());
@@ -78,7 +71,7 @@ public class ElGamal {
 		}
     }
 	
-	public void export_ElGamal_keypair() {
+	public void export_keypair() {
 		  try (FileOutputStream stream = new FileOutputStream("../eg_keys.asc")) {
 			  	BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(stream));
 			  	bw.write(KeyTools.bytesToHex(my_key_pair.getPrivate().getEncoded()));
@@ -94,7 +87,7 @@ public class ElGamal {
 			}
 	}
 	
-	public KeyPair import_ElGamal_keypair(String path) {
+	public KeyPair import_keypair(String path) {
 		KeyPair imported = null;
 		if(path == null)path = "../eg_keys.asc";
 		try {
@@ -124,16 +117,13 @@ public class ElGamal {
 
 		String msg = "We ready we ready we ready! FOR Y'ALL!";
 		ElGamal lg = new ElGamal();
-		lg.generate_ElGamal_keypair(512);
-		System.out.println("Public key:" + lg.my_key_pair.getPublic().getEncoded());
-		System.out.println("Private key:" + lg.my_key_pair.getPrivate().getEncoded());
+		lg.generate_keypair(512);
 		System.out.println("Enkriptovacemo poruku '" + new String(msg.getBytes(), StandardCharsets.UTF_8) + "'");
-		lg.export_ElGamal_keypair();
-		KeyPair imported_kp = lg.import_ElGamal_keypair(null);
+		lg.export_keypair();
+		KeyPair imported_kp = lg.import_keypair(null);
 		if(lg.my_key_pair.getPrivate().equals(imported_kp.getPrivate()) && lg.my_key_pair.getPublic().equals(imported_kp.getPublic()))System.out.println("IMPORT YAY");
 		else System.out.println("IMPORT NAY");
-		System.out.println("Original KEY: " + bytesToHex(imported_kp.getPrivate().getEncoded()));
-		System.out.println("IMPORTED KEY: " + bytesToHex(imported_kp.getPrivate().getEncoded()));
+
 		byte[] encryptedData = encrypt(lg.my_key_pair.getPublic(), msg.getBytes());
 		
 		System.out.println("Enkriptovani podaci: " + encryptedData);
