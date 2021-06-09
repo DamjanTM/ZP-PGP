@@ -1,5 +1,12 @@
 package etf.openpgp.pd170312duu170714d;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
@@ -10,6 +17,7 @@ import java.security.Security;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
@@ -32,7 +40,7 @@ public class IDEA {
 		return cipher.doFinal(encryptedData_);
 	}
 	
-	public void generate_IDEA_key(int strength_) {
+	public void generate_key(int strength_) {
         	SecureRandom rand = new SecureRandom();
             KeyGenerator keyGen;
             
@@ -46,12 +54,49 @@ public class IDEA {
 			}
     }
 	
+	public void export_key() {
+		  System.out.println("exported byte array: " + KeyTools.bytesToHex(my_key.getEncoded()));
+		  try (FileOutputStream stream = new FileOutputStream("../idea_key.asc")) {
+			  	BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(stream));
+			  	bw.write(KeyTools.bytesToHex(my_key.getEncoded()));
+			  	bw.close();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
+	
+	public SecretKey import_key(String path) {
+		SecretKey imported = null;
+		if(path == null)path = "../idea_key.asc";
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(path));
+			String KeyString = reader.readLine();
+			byte[] KeyBytes = KeyTools.hexToBytes(KeyString);
+			System.out.println("imported byte array: priv :" + KeyString);
+			System.out.println("pub: " + KeyString);
+	      	imported = new SecretKeySpec(KeyBytes, 0, KeyBytes.length, "IDEA"); 
+	      	reader.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return imported;
+	}
+	
 	public static void main( String args[]) throws GeneralSecurityException {
 		Security.addProvider(new BouncyCastleProvider());
 
 		String msg = "We ready we ready we ready! FOR Y'ALL!";
 		IDEA idea = new IDEA();
-		idea.generate_IDEA_key(128);
+		idea.generate_key(128);
+		idea.export_key();
+		SecretKey imported_sk = idea.import_key(null);
+		if(idea.my_key.equals(imported_sk))System.out.println("IMPORT YAY");
+		else System.out.println("IMPORT NAY");
 		System.out.println("Key:" + idea.my_key.getEncoded());
 		System.out.println("Enkriptovacemo poruku '" + new String(msg.getBytes(), StandardCharsets.UTF_8) + "'");
 		

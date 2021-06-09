@@ -1,16 +1,33 @@
 package etf.openpgp.pd170312duu170714d;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
+import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.Security;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
+import org.bouncycastle.jcajce.provider.symmetric.DESede;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class DES {
@@ -32,7 +49,7 @@ public class DES {
 		return cipher.doFinal(encryptedData_);
 	}
 	
-	public void generate_DES_key(int strength_) {
+	public void generate_key(int strength_) {
         	SecureRandom rand = new SecureRandom();
             KeyGenerator keyGen;
             
@@ -46,12 +63,48 @@ public class DES {
 			}
     }
 	
+	public void export_key() {
+		  System.out.println("exported byte array: " + KeyTools.bytesToHex(my_key.getEncoded()));
+		  try (FileOutputStream stream = new FileOutputStream("../des_key.asc")) {
+			  	BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(stream));
+			  	bw.write(KeyTools.bytesToHex(my_key.getEncoded()));
+			  	bw.close();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
+	
+	public SecretKey import_key(String path) {
+		SecretKey imported = null;
+		if(path == null)path = "../des_key.asc";
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(path));
+			String KeyString = reader.readLine();
+			byte[] KeyBytes = KeyTools.hexToBytes(KeyString);
+			System.out.println("imported byte array: priv :" + KeyString);
+			System.out.println("pub: " + KeyString);
+	      	imported = new SecretKeySpec(KeyBytes, 0, KeyBytes.length, "DES"); 
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return imported;
+	}
+	
 	public static void main( String args[]) throws GeneralSecurityException {
 		Security.addProvider(new BouncyCastleProvider());
 
 		String msg = "We ready we ready we ready! FOR Y'ALL!";
 		DES des = new DES();
-		des.generate_DES_key(128);
+		des.generate_key(128);
+		des.export_key();
+		SecretKey imported_sk = des.import_key(null);
+		if(des.my_key.equals(imported_sk))System.out.println("IMPORT YAY");
+		else System.out.println("IMPORT NAY");
 		System.out.println("Key:" + des.my_key.getEncoded());
 		System.out.println("Enkriptovacemo poruku '" + new String(msg.getBytes(), StandardCharsets.UTF_8) + "'");
 		
