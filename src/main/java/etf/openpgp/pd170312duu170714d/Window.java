@@ -51,6 +51,25 @@ public class Window extends javax.swing.JFrame {
         dsaKeySizeBG = new javax.swing.ButtonGroup();
         elgamalKeySizeBG = new javax.swing.ButtonGroup();
         encriptionAlgBG = new javax.swing.ButtonGroup();
+        generatorDialog = new javax.swing.JDialog();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel22 = new javax.swing.JLabel();
+        nameField = new javax.swing.JTextField();
+        emailField = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
+        jRadioButton1 = new javax.swing.JRadioButton();
+        jRadioButton2 = new javax.swing.JRadioButton();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        jRadioButton3 = new javax.swing.JRadioButton();
+        jRadioButton4 = new javax.swing.JRadioButton();
+        jRadioButton5 = new javax.swing.JRadioButton();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel23 = new javax.swing.JLabel();
+        jLabel24 = new javax.swing.JLabel();
+        passwordField = new javax.swing.JPasswordField();
+        jButton6 = new javax.swing.JButton();
         jCardPanel = new javax.swing.JPanel();
         homePanel = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
@@ -65,45 +84,35 @@ public class Window extends javax.swing.JFrame {
         msgTextArea = new javax.swing.JTextArea();
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
-        jLabel14 = new javax.swing.JLabel();
+        jLabel25 = new javax.swing.JLabel();
+        jComboBox1 = new javax.swing.JComboBox<>();
+        jTextField1 = new javax.swing.JTextField();
+        jComboBox2 = new javax.swing.JComboBox<>();
+        jButton7 = new javax.swing.JButton();
+        jLabel26 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         doSign = new javax.swing.JCheckBox();
         dsaKeyStatusLabel = new javax.swing.JLabel();
-        importDsaKeyBut = new javax.swing.JButton();
-        genDsaKeyBut = new javax.swing.JButton();
-        jLabel5 = new javax.swing.JLabel();
-        jRadioButton1 = new javax.swing.JRadioButton();
-        jRadioButton2 = new javax.swing.JRadioButton();
-        jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         doEncriptAsym = new javax.swing.JCheckBox();
         elgamalKeyStatusLabel = new javax.swing.JLabel();
         importElgamalKeyBut = new javax.swing.JButton();
         genElgamalKeyBut = new javax.swing.JButton();
-        jLabel9 = new javax.swing.JLabel();
-        jRadioButton3 = new javax.swing.JRadioButton();
-        jRadioButton4 = new javax.swing.JRadioButton();
-        jLabel10 = new javax.swing.JLabel();
-        jRadioButton5 = new javax.swing.JRadioButton();
-        exportElgamalKeyBut = new javax.swing.JButton();
-        exportDsaKeyBut = new javax.swing.JButton();
-        jButton12 = new javax.swing.JButton();
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
-        jPanel4 = new javax.swing.JPanel();
-        sendMsgBut = new javax.swing.JButton();
-        jLabel11 = new javax.swing.JLabel();
         doZip = new javax.swing.JCheckBox();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel17 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
         doEncryptSym = new javax.swing.JCheckBox();
+        jLabel18 = new javax.swing.JLabel();
         jRadioButton6 = new javax.swing.JRadioButton();
         jRadioButton7 = new javax.swing.JRadioButton();
         jLabel13 = new javax.swing.JLabel();
         doSerialize = new javax.swing.JCheckBox();
-        jLabel17 = new javax.swing.JLabel();
-        jLabel18 = new javax.swing.JLabel();
         jLabel19 = new javax.swing.JLabel();
+        sendMsgBut = new javax.swing.JButton();
         recievePanel = new javax.swing.JPanel();
         jLabel21 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -114,6 +123,166 @@ public class Window extends javax.swing.JFrame {
         jButton16 = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
+
+        generatorDialog.setMinimumSize(new java.awt.Dimension(470, 290));
+        generatorDialog.setPreferredSize(new java.awt.Dimension(470, 290));
+        generatorDialog.setResizable(false);
+
+        jPanel1.setMinimumSize(new java.awt.Dimension(470, 225));
+
+        jLabel8.setFont(new java.awt.Font("Calibri", 1, 18)); // NOI18N
+        jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel8.setText("Generiši Par Ključeva");
+
+        jLabel22.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
+        jLabel22.setText("Ime:");
+
+        nameField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nameFieldActionPerformed(evt);
+            }
+        });
+
+        jLabel5.setText("DSA ključ veličine");
+
+        dsaKeySizeBG.add(jRadioButton1);
+        jRadioButton1.setSelected(true);
+        jRadioButton1.setText("1024");
+
+        dsaKeySizeBG.add(jRadioButton2);
+        jRadioButton2.setText("2048");
+
+        jLabel6.setText("bita.");
+
+        jLabel9.setText("ElGamal ključ veličine");
+
+        elgamalKeySizeBG.add(jRadioButton3);
+        jRadioButton3.setSelected(true);
+        jRadioButton3.setText("1024");
+
+        elgamalKeySizeBG.add(jRadioButton4);
+        jRadioButton4.setText("2048");
+
+        elgamalKeySizeBG.add(jRadioButton5);
+        jRadioButton5.setText("4096");
+
+        jLabel10.setText("bita.");
+
+        jLabel23.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
+        jLabel23.setText("E-mail:");
+
+        jLabel24.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
+        jLabel24.setText("Šifra:");
+
+        jButton6.setText("Generiši");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel8, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel5)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jRadioButton1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jRadioButton2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel6)
+                                .addGap(15, 15, 15))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel9)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jRadioButton3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jRadioButton4)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jRadioButton5)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel10)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
+                        .addComponent(jButton6))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel22)
+                            .addComponent(jLabel23)
+                            .addComponent(jLabel24))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(emailField, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(nameField, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(passwordField))))
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel8)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(nameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel22))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(emailField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel23))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(passwordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel24))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel5)
+                            .addComponent(jRadioButton1)
+                            .addComponent(jRadioButton2)
+                            .addComponent(jLabel6))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel9)
+                            .addComponent(jRadioButton3)
+                            .addComponent(jRadioButton4)
+                            .addComponent(jLabel10)
+                            .addComponent(jRadioButton5))
+                        .addContainerGap(53, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton6)
+                        .addContainerGap())))
+        );
+
+        javax.swing.GroupLayout generatorDialogLayout = new javax.swing.GroupLayout(generatorDialog.getContentPane());
+        generatorDialog.getContentPane().setLayout(generatorDialogLayout);
+        generatorDialogLayout.setHorizontalGroup(
+            generatorDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 470, Short.MAX_VALUE)
+            .addGroup(generatorDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(generatorDialogLayout.createSequentialGroup()
+                    .addGap(0, 0, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 0, Short.MAX_VALUE)))
+        );
+        generatorDialogLayout.setVerticalGroup(
+            generatorDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 250, Short.MAX_VALUE)
+            .addGroup(generatorDialogLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(generatorDialogLayout.createSequentialGroup()
+                    .addGap(0, 0, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 0, Short.MAX_VALUE)))
+        );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("ZP projekat OpenPGP");
@@ -210,8 +379,17 @@ public class Window extends javax.swing.JFrame {
             }
         });
 
-        jLabel14.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
-        jLabel14.setText("Ispod unesite (ili uvezite) tekst poruke koju ćemo slati.");
+        jLabel25.setText("Od:");
+
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        jTextField1.setEditable(false);
+
+        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        jButton7.setText("Dodaj");
+
+        jLabel26.setText("Ka:");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -220,16 +398,28 @@ public class Window extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 698, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                         .addComponent(jButton4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jButton5))
                     .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel14))
-                        .addGap(0, 376, Short.MAX_VALUE)))
+                            .addComponent(jLabel25)
+                            .addComponent(jLabel26))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel2Layout.createSequentialGroup()
+                                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(jTextField1))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton7)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -238,9 +428,17 @@ public class Window extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel14)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel25))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton7)
+                    .addComponent(jLabel26))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton5)
@@ -248,7 +446,7 @@ public class Window extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        sendPanel.addTab("Sadržaj", jPanel2);
+        sendPanel.addTab("Poruka", jPanel2);
 
         jLabel4.setFont(new java.awt.Font("Calibri", 1, 24)); // NOI18N
         jLabel4.setText("Potpisivanje");
@@ -260,26 +458,6 @@ public class Window extends javax.swing.JFrame {
         dsaKeyStatusLabel.setForeground(new java.awt.Color(187, 87, 87));
         dsaKeyStatusLabel.setText("Ključ Potreban");
         dsaKeyStatusLabel.setToolTipText("");
-
-        importDsaKeyBut.setText("Uvezi Ključ");
-
-        genDsaKeyBut.setText("Generiši Ključ");
-        genDsaKeyBut.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                genDsaKeyButActionPerformed(evt);
-            }
-        });
-
-        jLabel5.setText("veličine");
-
-        dsaKeySizeBG.add(jRadioButton1);
-        jRadioButton1.setSelected(true);
-        jRadioButton1.setText("1024");
-
-        dsaKeySizeBG.add(jRadioButton2);
-        jRadioButton2.setText("2048");
-
-        jLabel6.setText("bita.");
 
         jLabel7.setFont(new java.awt.Font("Calibri", 1, 24)); // NOI18N
         jLabel7.setText("Enkripcija");
@@ -297,39 +475,12 @@ public class Window extends javax.swing.JFrame {
         elgamalKeyStatusLabel.setText("Ključ Potreban");
         elgamalKeyStatusLabel.setToolTipText("");
 
-        importElgamalKeyBut.setText("Uvezi Ključ");
+        importElgamalKeyBut.setText("Uvezi Ključeve");
 
-        genElgamalKeyBut.setText("Generiši Ključ");
+        genElgamalKeyBut.setText("Generiši Ključeve");
         genElgamalKeyBut.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 genElgamalKeyButActionPerformed(evt);
-            }
-        });
-
-        jLabel9.setText("veličine");
-
-        elgamalKeySizeBG.add(jRadioButton3);
-        jRadioButton3.setSelected(true);
-        jRadioButton3.setText("1024");
-
-        elgamalKeySizeBG.add(jRadioButton4);
-        jRadioButton4.setText("2048");
-
-        jLabel10.setText("bita.");
-
-        elgamalKeySizeBG.add(jRadioButton5);
-        jRadioButton5.setText("4096");
-
-        exportElgamalKeyBut.setText("Izvezi Ključ");
-        exportElgamalKeyBut.setEnabled(false);
-
-        exportDsaKeyBut.setText("Izvezi Ključ");
-        exportDsaKeyBut.setEnabled(false);
-
-        jButton12.setText("Dalje");
-        jButton12.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton12ActionPerformed(evt);
             }
         });
 
@@ -339,123 +490,14 @@ public class Window extends javax.swing.JFrame {
         jLabel16.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
         jLabel16.setText("Za asimetričnu enkripciju koristimo ElGamalov algoritam.");
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jButton12))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(jLabel4)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(doSign))
-                            .addComponent(jLabel15)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(importDsaKeyBut)
-                                .addGap(18, 18, 18)
-                                .addComponent(genDsaKeyBut)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel5)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jRadioButton1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jRadioButton2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel6))
-                            .addComponent(exportDsaKeyBut)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(jLabel7)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(doEncriptAsym))
-                            .addComponent(jLabel16)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(importElgamalKeyBut)
-                                .addGap(18, 18, 18)
-                                .addComponent(genElgamalKeyBut)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel9)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jRadioButton3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jRadioButton4)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jRadioButton5)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel10))
-                            .addComponent(exportElgamalKeyBut)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addGap(6, 6, 6)
-                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(dsaKeyStatusLabel)
-                                    .addComponent(elgamalKeyStatusLabel))))
-                        .addGap(0, 204, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(doSign, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel15)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(dsaKeyStatusLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(importDsaKeyBut)
-                    .addComponent(genDsaKeyBut)
-                    .addComponent(jLabel5)
-                    .addComponent(jRadioButton1)
-                    .addComponent(jRadioButton2)
-                    .addComponent(jLabel6))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(exportDsaKeyBut)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(doEncriptAsym, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel16)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(elgamalKeyStatusLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(importElgamalKeyBut)
-                    .addComponent(genElgamalKeyBut)
-                    .addComponent(jLabel9)
-                    .addComponent(jRadioButton3)
-                    .addComponent(jRadioButton4)
-                    .addComponent(jLabel10)
-                    .addComponent(jRadioButton5))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(exportElgamalKeyBut)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
-                .addComponent(jButton12)
-                .addContainerGap())
-        );
-
-        sendPanel.addTab("Potpis i Enkripcija", jPanel3);
-
-        sendMsgBut.setText("Sačuvaj poruku u fajl");
-        sendMsgBut.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                sendMsgButActionPerformed(evt);
-            }
-        });
+        doZip.setSelected(true);
 
         jLabel11.setFont(new java.awt.Font("Calibri", 1, 24)); // NOI18N
         jLabel11.setText("Kompresija");
         jLabel11.setToolTipText("");
 
-        doZip.setSelected(true);
+        jLabel17.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
+        jLabel17.setText("Za kompresiju koristimo Zip algoritam.");
 
         jLabel12.setFont(new java.awt.Font("Calibri", 1, 24)); // NOI18N
         jLabel12.setText("Enkripcija");
@@ -467,6 +509,9 @@ public class Window extends javax.swing.JFrame {
                 doEncryptSymActionPerformed(evt);
             }
         });
+
+        jLabel18.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
+        jLabel18.setText("Simetrična enkripcija koristeći jedan od sledećih algoritama.");
 
         encriptionAlgBG.add(jRadioButton6);
         jRadioButton6.setSelected(true);
@@ -481,79 +526,132 @@ public class Window extends javax.swing.JFrame {
 
         doSerialize.setSelected(true);
 
-        jLabel17.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
-        jLabel17.setText("Za kompresiju koristimo Zip algoritam.");
-
-        jLabel18.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
-        jLabel18.setText("Simetrična enkripcija koristeći jedan od sledećih algoritama.");
-
         jLabel19.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
         jLabel19.setText("Enkodovanje se vrši u radix64 format.");
 
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addComponent(jLabel11)
+        sendMsgBut.setText("Sačuvaj poruku u fajl");
+        sendMsgBut.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                sendMsgButActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(12, 12, 12)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jLabel4)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(doZip))
-                            .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addComponent(jLabel12)
+                                .addComponent(doSign))
+                            .addComponent(jLabel15)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(dsaKeyStatusLabel)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 121, Short.MAX_VALUE)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jLabel7)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(doEncryptSym))
-                            .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addComponent(jRadioButton6)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jRadioButton7))
-                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addComponent(doEncriptAsym))
+                            .addComponent(jLabel16)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(elgamalKeyStatusLabel))))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
                                 .addComponent(jLabel13)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(doSerialize))
-                            .addComponent(jLabel17)
+                            .addComponent(jLabel19)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jLabel12)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(doEncryptSym))
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jRadioButton6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jRadioButton7))
                             .addComponent(jLabel18)
-                            .addComponent(jLabel19))
-                        .addContainerGap(351, Short.MAX_VALUE))
-                    .addComponent(sendMsgBut, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jLabel11)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(doZip))
+                            .addComponent(jLabel17))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(sendMsgBut, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                                .addComponent(importElgamalKeyBut)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(genElgamalKeyBut)
+                                .addGap(226, 226, 226)))))
+                .addContainerGap())
         );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(doSign, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel15)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(dsaKeyStatusLabel))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(doEncriptAsym, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel16)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(elgamalKeyStatusLabel)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(importElgamalKeyBut)
+                    .addComponent(genElgamalKeyBut))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(doZip, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jLabel11))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel17)
-                .addGap(18, 18, 18)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(doEncryptSym, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel12))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel18)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jRadioButton6)
                     .addComponent(jRadioButton7))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(doSerialize, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel13))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel19)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 101, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(sendMsgBut)
                 .addContainerGap())
         );
 
-        sendPanel.addTab("Kompresija, Enkripcija i Serijalizacija", jPanel4);
+        sendPanel.addTab("Podešavanja", jPanel3);
 
         jCardPanel.add(sendPanel, "sendCard");
+        sendPanel.getAccessibleContext().setAccessibleName("Poruka");
 
         jLabel21.setFont(new java.awt.Font("Calibri", 1, 24)); // NOI18N
         jLabel21.setText("Primanje Poruke");
@@ -683,6 +781,25 @@ public class Window extends javax.swing.JFrame {
         card.show(jCardPanel, "sendCard");
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void jButton15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton15ActionPerformed
+        CardLayout card = (CardLayout)jCardPanel.getLayout();
+        card.show(jCardPanel, "homeCard");
+    }//GEN-LAST:event_jButton15ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        CardLayout card = (CardLayout)jCardPanel.getLayout();
+        card.show(jCardPanel, "keyringCard");
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton16ActionPerformed
+        CardLayout card = (CardLayout)jCardPanel.getLayout();
+        card.show(jCardPanel, "homeCard");
+    }//GEN-LAST:event_jButton16ActionPerformed
+
+    private void nameFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nameFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_nameFieldActionPerformed
+
     private void sendMsgButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendMsgButActionPerformed
         try {
             // START SEND
@@ -699,39 +816,32 @@ public class Window extends javax.swing.JFrame {
                 if (jRadioButton7.isSelected()) algorithm = PGPEncryptedData.IDEA;
                 msg = PGP.encrypt(msg, algorithm, receiverPublicKey);
             }
-            
+
             // END SEND
             CardLayout card = (CardLayout)jCardPanel.getLayout();
             card.show(jCardPanel, "homeCard");
-            
+
             sendPanel.setSelectedIndex(0);
         } catch (Exception ex) {
             Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_sendMsgButActionPerformed
 
+    private void doEncryptSymActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doEncryptSymActionPerformed
+        doEncriptAsym.setSelected(doEncryptSym.isSelected());
+    }//GEN-LAST:event_doEncryptSymActionPerformed
+
+    private void genElgamalKeyButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_genElgamalKeyButActionPerformed
+        generatorDialog.setVisible(true);
+    }//GEN-LAST:event_genElgamalKeyButActionPerformed
+
+    private void doEncriptAsymActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doEncriptAsymActionPerformed
+        doEncryptSym.setSelected(doEncriptAsym.isSelected());
+    }//GEN-LAST:event_doEncriptAsymActionPerformed
+
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-       sendPanel.setSelectedIndex(1);
+        sendPanel.setSelectedIndex(1);
     }//GEN-LAST:event_jButton5ActionPerformed
-
-    private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
-        sendPanel.setSelectedIndex(2);
-    }//GEN-LAST:event_jButton12ActionPerformed
-
-    private void jButton15ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton15ActionPerformed
-        CardLayout card = (CardLayout)jCardPanel.getLayout();
-        card.show(jCardPanel, "homeCard");
-    }//GEN-LAST:event_jButton15ActionPerformed
-
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        CardLayout card = (CardLayout)jCardPanel.getLayout();
-        card.show(jCardPanel, "keyringCard");
-    }//GEN-LAST:event_jButton3ActionPerformed
-
-    private void jButton16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton16ActionPerformed
-        CardLayout card = (CardLayout)jCardPanel.getLayout();
-        card.show(jCardPanel, "homeCard");
-    }//GEN-LAST:event_jButton16ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // Import text on send form
@@ -745,63 +855,32 @@ public class Window extends javax.swing.JFrame {
                 directory = Paths.get(chooser.getSelectedFile().getPath());
                 startingFolder = chooser.getSelectedFile().getParentFile().getPath();
             }
-            
+
             msgTextArea.setText(Files.readString(directory));
         } catch (IOException ex) {
             Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton4ActionPerformed
 
-    private void genDsaKeyButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_genDsaKeyButActionPerformed
-        try {
-            KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA", "BC");
-            int keySize=1024;
-            if (jRadioButton2.isSelected()) keySize=2048;
-            kpg.initialize(keySize);
-            KeyPair dsa_key_pair = kpg.generateKeyPair(); // WHAT NOW???????????????????????????????
-            
-            dsaKeyStatusLabel.setForeground(new Color(25,190,83));
-            dsaKeyStatusLabel.setText("Ključ uspešno generisan!");
-            exportDsaKeyBut.setEnabled(true);
-        } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
-            dsaKeyStatusLabel.setForeground(new Color(255,140,26));
-            dsaKeyStatusLabel.setText("Greška pri generisanju ključa! Algoritam nije pronađen!");
-        } catch (NoSuchProviderException ex) {
-            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
-            dsaKeyStatusLabel.setForeground(new Color(255,140,26));
-            dsaKeyStatusLabel.setText("Greška pri generisanju ključa! BoucyCastle nije pronađen!");
-        }
-    }//GEN-LAST:event_genDsaKeyButActionPerformed
-
-    private void genElgamalKeyButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_genElgamalKeyButActionPerformed
-//        try {
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+          //        try {
             int keySize=1024;
             if (jRadioButton4.isSelected()) keySize=2048;
             else if (jRadioButton5.isSelected()) keySize=4096;
             //ElGamal.generate_keypair(keySize);
-            
+
             elgamalKeyStatusLabel.setForeground(new Color(25,190,83));
             elgamalKeyStatusLabel.setText("Ključ uspešno generisan!");
-            exportElgamalKeyBut.setEnabled(true);
-//        } catch (NoSuchAlgorithmException ex) {
-//            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
-//            elgamalKeyStatusLabel.setForeground(new Color(255,140,26));
-//            elgamalKeyStatusLabel.setText("Greška pri generisanju ključa! Algoritam nije pronađen!");
-//        } catch (NoSuchProviderException ex) {
-//            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
-//            elgamalKeyStatusLabel.setForeground(new Color(255,140,26));
-//            elgamalKeyStatusLabel.setText("Greška pri generisanju ključa! BoucyCastle nije pronađen!");
-//        }
-    }//GEN-LAST:event_genElgamalKeyButActionPerformed
-
-    private void doEncriptAsymActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doEncriptAsymActionPerformed
-        doEncryptSym.setSelected(doEncriptAsym.isSelected());
-    }//GEN-LAST:event_doEncriptAsymActionPerformed
-
-    private void doEncryptSymActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doEncryptSymActionPerformed
-        doEncriptAsym.setSelected(doEncryptSym.isSelected());
-    }//GEN-LAST:event_doEncryptSymActionPerformed
+            //        } catch (NoSuchAlgorithmException ex) {
+            //            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+            //            elgamalKeyStatusLabel.setForeground(new Color(255,140,26));
+            //            elgamalKeyStatusLabel.setText("Greška pri generisanju ključa! Algoritam nije pronađen!");
+            //        } catch (NoSuchProviderException ex) {
+            //            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+            //            elgamalKeyStatusLabel.setForeground(new Color(255,140,26));
+            //            elgamalKeyStatusLabel.setText("Greška pri generisanju ključa! BoucyCastle nije pronađen!");
+            //        }
+    }//GEN-LAST:event_jButton6ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -848,16 +927,13 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JLabel dsaKeyStatusLabel;
     private javax.swing.ButtonGroup elgamalKeySizeBG;
     private javax.swing.JLabel elgamalKeyStatusLabel;
+    private javax.swing.JTextField emailField;
     private javax.swing.ButtonGroup encriptionAlgBG;
-    private javax.swing.JButton exportDsaKeyBut;
-    private javax.swing.JButton exportElgamalKeyBut;
-    private javax.swing.JButton genDsaKeyBut;
     private javax.swing.JButton genElgamalKeyBut;
+    private javax.swing.JDialog generatorDialog;
     private javax.swing.JPanel homePanel;
-    private javax.swing.JButton importDsaKeyBut;
     private javax.swing.JButton importElgamalKeyBut;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton12;
     private javax.swing.JButton jButton14;
     private javax.swing.JButton jButton15;
     private javax.swing.JButton jButton16;
@@ -865,13 +941,16 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
     private javax.swing.JPanel jCardPanel;
+    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JComboBox<String> jComboBox2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
     private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
@@ -880,14 +959,20 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel21;
+    private javax.swing.JLabel jLabel22;
+    private javax.swing.JLabel jLabel23;
+    private javax.swing.JLabel jLabel24;
+    private javax.swing.JLabel jLabel25;
+    private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JRadioButton jRadioButton2;
     private javax.swing.JRadioButton jRadioButton3;
@@ -900,8 +985,11 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTable jTable1;
     private javax.swing.JTextArea jTextArea2;
+    private javax.swing.JTextField jTextField1;
     private javax.swing.JPanel keyringPanel;
     private javax.swing.JTextArea msgTextArea;
+    private javax.swing.JTextField nameField;
+    private javax.swing.JPasswordField passwordField;
     private javax.swing.JPanel recievePanel;
     private javax.swing.JButton sendMsgBut;
     private javax.swing.JTabbedPane sendPanel;
