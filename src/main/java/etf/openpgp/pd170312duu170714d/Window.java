@@ -22,6 +22,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openpgp.PGPEncryptedData;
 
 /**
  *
@@ -254,11 +255,6 @@ public class Window extends javax.swing.JFrame {
         jLabel4.setToolTipText("");
 
         doSign.setSelected(true);
-        doSign.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                doSignActionPerformed(evt);
-            }
-        });
 
         dsaKeyStatusLabel.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         dsaKeyStatusLabel.setForeground(new java.awt.Color(187, 87, 87));
@@ -290,6 +286,11 @@ public class Window extends javax.swing.JFrame {
         jLabel7.setToolTipText("");
 
         doEncriptAsym.setSelected(true);
+        doEncriptAsym.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                doEncriptAsymActionPerformed(evt);
+            }
+        });
 
         elgamalKeyStatusLabel.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         elgamalKeyStatusLabel.setForeground(new java.awt.Color(187, 87, 87));
@@ -461,6 +462,11 @@ public class Window extends javax.swing.JFrame {
         jLabel12.setToolTipText("");
 
         doEncryptSym.setSelected(true);
+        doEncryptSym.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                doEncryptSymActionPerformed(evt);
+            }
+        });
 
         encriptionAlgBG.add(jRadioButton6);
         jRadioButton6.setSelected(true);
@@ -470,7 +476,7 @@ public class Window extends javax.swing.JFrame {
         jRadioButton7.setText("IDEA");
 
         jLabel13.setFont(new java.awt.Font("Calibri", 1, 24)); // NOI18N
-        jLabel13.setText("Serijalizacija");
+        jLabel13.setText("Enkodovanje");
         jLabel13.setToolTipText("");
 
         doSerialize.setSelected(true);
@@ -482,7 +488,7 @@ public class Window extends javax.swing.JFrame {
         jLabel18.setText("Simetrična enkripcija koristeći jedan od sledećih algoritama.");
 
         jLabel19.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
-        jLabel19.setText("Serijalizacija se vrši u radix64 format.");
+        jLabel19.setText("Enkodovanje se vrši u radix64 format.");
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -678,10 +684,30 @@ public class Window extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void sendMsgButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendMsgButActionPerformed
-        CardLayout card = (CardLayout)jCardPanel.getLayout();
-        card.show(jCardPanel, "homeCard");
-        
-        sendPanel.setSelectedIndex(0);
+        try {
+            // START SEND
+            byte[] msg = msgTextArea.getText().getBytes();
+            msg = PGP.convertToPGP(msg);
+            if (doSign.isSelected()) {
+                msg = PGP.sign(msg, senderSecretKey_, senderPassphrase_);
+            }
+            if(doZip.isSelected()) {
+                msg = PGP.zip(msg);
+            }
+            if(doEncryptSym.isSelected()) {
+                int algorithm = PGPEncryptedData.TRIPLE_DES;
+                if (jRadioButton7.isSelected()) algorithm = PGPEncryptedData.IDEA;
+                msg = PGP.encrypt(msg, algorithm, receiverPublicKey);
+            }
+            
+            // END SEND
+            CardLayout card = (CardLayout)jCardPanel.getLayout();
+            card.show(jCardPanel, "homeCard");
+            
+            sendPanel.setSelectedIndex(0);
+        } catch (Exception ex) {
+            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_sendMsgButActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
@@ -749,31 +775,33 @@ public class Window extends javax.swing.JFrame {
     }//GEN-LAST:event_genDsaKeyButActionPerformed
 
     private void genElgamalKeyButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_genElgamalKeyButActionPerformed
-        try {
-            KeyPairGenerator kpg = KeyPairGenerator.getInstance("ElGamal", "BC");
+//        try {
             int keySize=1024;
             if (jRadioButton4.isSelected()) keySize=2048;
             else if (jRadioButton5.isSelected()) keySize=4096;
-            kpg.initialize(keySize);
-            KeyPair elgamal_key_pair = kpg.generateKeyPair(); // WHAT NOW???????????????????????????????
+            //ElGamal.generate_keypair(keySize);
             
             elgamalKeyStatusLabel.setForeground(new Color(25,190,83));
             elgamalKeyStatusLabel.setText("Ključ uspešno generisan!");
             exportElgamalKeyBut.setEnabled(true);
-        } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
-            elgamalKeyStatusLabel.setForeground(new Color(255,140,26));
-            elgamalKeyStatusLabel.setText("Greška pri generisanju ključa! Algoritam nije pronađen!");
-        } catch (NoSuchProviderException ex) {
-            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
-            elgamalKeyStatusLabel.setForeground(new Color(255,140,26));
-            elgamalKeyStatusLabel.setText("Greška pri generisanju ključa! BoucyCastle nije pronađen!");
-        }
+//        } catch (NoSuchAlgorithmException ex) {
+//            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+//            elgamalKeyStatusLabel.setForeground(new Color(255,140,26));
+//            elgamalKeyStatusLabel.setText("Greška pri generisanju ključa! Algoritam nije pronađen!");
+//        } catch (NoSuchProviderException ex) {
+//            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+//            elgamalKeyStatusLabel.setForeground(new Color(255,140,26));
+//            elgamalKeyStatusLabel.setText("Greška pri generisanju ključa! BoucyCastle nije pronađen!");
+//        }
     }//GEN-LAST:event_genElgamalKeyButActionPerformed
 
-    private void doSignActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doSignActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_doSignActionPerformed
+    private void doEncriptAsymActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doEncriptAsymActionPerformed
+        doEncryptSym.setSelected(doEncriptAsym.isSelected());
+    }//GEN-LAST:event_doEncriptAsymActionPerformed
+
+    private void doEncryptSymActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doEncryptSymActionPerformed
+        doEncriptAsym.setSelected(doEncryptSym.isSelected());
+    }//GEN-LAST:event_doEncryptSymActionPerformed
 
     /**
      * @param args the command line arguments

@@ -409,9 +409,6 @@
                   <Properties>
                     <Property name="selected" type="boolean" value="true"/>
                   </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="doSignActionPerformed"/>
-                  </Events>
                 </Component>
                 <Component class="javax.swing.JLabel" name="dsaKeyStatusLabel">
                   <Properties>
@@ -478,6 +475,9 @@
                   <Properties>
                     <Property name="selected" type="boolean" value="true"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="doEncriptAsymActionPerformed"/>
+                  </Events>
                 </Component>
                 <Component class="javax.swing.JLabel" name="elgamalKeyStatusLabel">
                   <Properties>
@@ -697,6 +697,9 @@
                   <Properties>
                     <Property name="selected" type="boolean" value="true"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="doEncryptSymActionPerformed"/>
+                  </Events>
                 </Component>
                 <Component class="javax.swing.JRadioButton" name="jRadioButton6">
                   <Properties>
@@ -720,7 +723,7 @@
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Calibri" size="24" style="1"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="Serijalizacija"/>
+                    <Property name="text" type="java.lang.String" value="Enkodovanje"/>
                     <Property name="toolTipText" type="java.lang.String" value=""/>
                   </Properties>
                 </Component>
@@ -750,7 +753,7 @@
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Calibri" size="14" style="1"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="Serijalizacija se vr&#x161;i u radix64 format."/>
+                    <Property name="text" type="java.lang.String" value="Enkodovanje se vr&#x161;i u radix64 format."/>
                   </Properties>
                 </Component>
               </SubComponents>
