@@ -42,12 +42,10 @@ public class WindowSendState extends WindowState {
 			try {
 				Path directory;
 
-				BufferedReader file;
 				JFileChooser chooser = new JFileChooser(myWindow.startingFolder);
 			    FileNameExtensionFilter filter = new FileNameExtensionFilter(
 			        "TXT Files", "txt");
 			    chooser.setFileFilter(filter);
-			    //chooser.setCurrentDirectory(new File("C:\\\\Users\\\\Damjan\\\\Desktop\\\\input"));
 			    int returnVal = chooser.showOpenDialog(new JPanel());
 			    if(returnVal == JFileChooser.APPROVE_OPTION) {
 			    	directory = Path.of(chooser.getSelectedFile().getPath());
@@ -55,8 +53,8 @@ public class WindowSendState extends WindowState {
 			    }
 			    else throw new FileNotFoundException();
 			    
-			    msg_.text = Files.readString(directory);
-			    textArea.setText(msg_.text);
+			    msg_.data = Files.readString(directory).getBytes();
+			    textArea.setText(msg_.toString());
 			} catch (FileNotFoundException fnfe) {
 				System.out.println("Coldn't find file!");
 			} catch (IOException e) {
@@ -68,8 +66,8 @@ public class WindowSendState extends WindowState {
 		// NEXT
 		nextBut.addActionListener((o) -> {
 			//TO-DO Provera
-			msg_.text = textArea.getText();
-			myWindow.changeState(States.SEND_2);
+			msg_.data = textArea.getText().getBytes();
+			myWindow.changeState(States.SEND_SGN);
 		});
 		
 		//Finalize

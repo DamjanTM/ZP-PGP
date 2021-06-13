@@ -25,45 +25,45 @@ public class WindowHomeState extends WindowState {
 	@Override
 	public void addCenterPanel(Message msg_) {
 		// SEND
-				sendBut.addActionListener((o) -> {
-						myWindow.changeState(States.SEND_1);
-				});
-				
-				// RECIEVE
-				recieveBut.addActionListener((o) -> {
-					
-					try {
-						Path directory;
+		sendBut.addActionListener((o) -> {
+				myWindow.changeState(States.SEND_MSG);
+		});
+		
+		// RECIEVE
+		recieveBut.addActionListener((o) -> {
+			
+			try {
+				Path directory;
 
-						BufferedReader file;
-						JFileChooser chooser = new JFileChooser(myWindow.startingFolder);
-					    FileNameExtensionFilter filter = new FileNameExtensionFilter(
-					        "TXT Files", "txt");
-					    chooser.setFileFilter(filter);
-					    //chooser.setCurrentDirectory(new File("C:\\\\Users\\\\Damjan\\\\Desktop\\\\input"));
-					    int returnVal = chooser.showOpenDialog(new JPanel());
-					    if(returnVal == JFileChooser.APPROVE_OPTION) {
-					    	directory = Path.of(chooser.getSelectedFile().getPath());
-					    	myWindow.startingFolder = chooser.getSelectedFile().getParentFile().getPath();
-					    }
-					    else throw new FileNotFoundException();
-					    
-					    msg_.text = Files.readString(directory);
-					} catch (FileNotFoundException fnfe) {
-						System.out.println("Coldn't find file!");
-					} catch (IOException e) {
-						System.out.println("Error converting String to Path!");
-						e.printStackTrace();
-					};
-					myWindow.changeState(States.RECIEVE);
-					});
-				
-				//Finalize
-				
-				centerPanel.add(sendBut);
-				centerPanel.add(recieveBut);
-				
-				myWindow.add(centerPanel, BorderLayout.CENTER);
+				BufferedReader file;
+				JFileChooser chooser = new JFileChooser(myWindow.startingFolder);
+			    FileNameExtensionFilter filter = new FileNameExtensionFilter(
+			        "TXT Files", "txt");
+			    chooser.setFileFilter(filter);
+			    //chooser.setCurrentDirectory(new File("C:\\\\Users\\\\Damjan\\\\Desktop\\\\input"));
+			    int returnVal = chooser.showOpenDialog(new JPanel());
+			    if(returnVal == JFileChooser.APPROVE_OPTION) {
+			    	directory = Path.of(chooser.getSelectedFile().getPath());
+			    	myWindow.startingFolder = chooser.getSelectedFile().getParentFile().getPath();
+			    }
+			    else throw new FileNotFoundException();
+			    
+			    msg_.data = Files.readString(directory).getBytes();
+			} catch (FileNotFoundException fnfe) {
+				System.out.println("Coldn't find file!");
+			} catch (IOException e) {
+				System.out.println("Error converting String to Path!");
+				e.printStackTrace();
+			};
+			myWindow.changeState(States.RECIEVE);
+			});
+		
+		//Finalize
+		
+		centerPanel.add(sendBut);
+		centerPanel.add(recieveBut);
+		
+		myWindow.add(centerPanel, BorderLayout.CENTER);
 	}
 
 }

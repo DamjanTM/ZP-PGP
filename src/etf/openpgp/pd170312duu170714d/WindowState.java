@@ -4,8 +4,9 @@ public abstract class WindowState {
 	public enum States {
 		HOME,
 		RECIEVE,
-		SEND_1,
-		SEND_2
+		SEND_MSG,
+		SEND_SGN,
+		SEND_FIN
 	}
 	private States state;
 	protected Window myWindow;

@@ -13,6 +13,12 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class Window extends JFrame {
 	
 	String startingFolder = System.getProperty("user.home")+"\\Desktop";
+	DSA dsa = new DSA();
+	ElGamal elgamal = new ElGamal();
+	Zip zip = new Zip();
+	DES des = new DES();
+	IDEA idea = new IDEA();
+	radix64 rad = new radix64();
 	
 	private WindowState state=new WindowHomeState(this);
 	private Message msg= new Message();
@@ -22,6 +28,10 @@ public class Window extends JFrame {
 		setResizable(true);
 		state.addCenterPanel(msg);
 		addMenu();
+		this.setSize(500, 500);
+		setMinimumSize(new Dimension(500, 0));
+        setMaximumSize(new Dimension(500, Integer.MAX_VALUE));
+		this.setResizable(false);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		pack();
@@ -78,11 +88,11 @@ public class Window extends JFrame {
 		case RECIEVE:
 			state = new WindowHomeState(this); 
 			break;
-		case SEND_1:
+		case SEND_MSG:
 			state = new WindowSendState(this); 
 			break;
-		case SEND_2:
-			state = new WindowHomeState(this); 
+		case SEND_SGN:
+			state = new WindowSignState(this); 
 			break;
 		}
 		getContentPane().removeAll();

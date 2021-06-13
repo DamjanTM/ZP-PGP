@@ -7,11 +7,13 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
@@ -26,31 +28,34 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 public class DSA {
 	private KeyPair my_key_pair;
 	
-	public static byte[] generateSignature(PrivateKey ecPrivate_, byte[] input_) throws GeneralSecurityException
+	public byte[] generateSignature(byte[] input_) throws GeneralSecurityException
 	{
 		Signature signature = Signature.getInstance("SHA1withDSA", "BC");
-		signature.initSign(ecPrivate_);
+		signature.initSign(my_key_pair.getPrivate());
 		signature.update(input_);
 		return signature.sign();
 	}
 	
-	public static boolean verifySignature(PublicKey ecPublic_, byte[] input_, byte[] encSignature_) throws GeneralSecurityException
+	public boolean verifySignature(byte[] input_, byte[] encSignature_) throws GeneralSecurityException
 	{
 		Signature signature = Signature.getInstance("SHA1withDSA", "BC");
-		signature.initVerify(ecPublic_);
+		signature.initVerify(my_key_pair.getPublic());
 		signature.update(input_);
 		return signature.verify(encSignature_);
 	}
 	
 	public void generate_keypair(int key_size_) {
         try {
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA");
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA", "BC");
             keyPairGenerator.initialize(key_size_);
             this.my_key_pair = keyPairGenerator.generateKeyPair();
         } catch (NoSuchAlgorithmException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
+        } catch (NoSuchProviderException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 	
 	public void export_keypair() {
@@ -95,6 +100,14 @@ public class DSA {
 		return imported;
 	}
 	
+	public String returnPublicKey() {
+		return new String(my_key_pair.getPublic().getEncoded(), StandardCharsets.UTF_8);
+	}
+	
+	public String returnPrivateKey() {
+		return new String(my_key_pair.getPrivate().getEncoded(), StandardCharsets.UTF_8);
+	}
+	
 	public static void main( String args[]) throws GeneralSecurityException {
 		Security.addProvider(new BouncyCastleProvider());
 
@@ -108,15 +121,15 @@ public class DSA {
 		KeyPair imported_kp = ldp.import_keypair(null);
 		if(ldp.my_key_pair.getPrivate().equals(imported_kp.getPrivate()) && ldp.my_key_pair.getPublic().equals(imported_kp.getPublic()))System.out.println("IMPORT YAY");
 		else System.out.println("IMPORT NAY");
-		byte[] signature = generateSignature(ldp.my_key_pair.getPrivate(), msg.getBytes());
+		byte[] signature = ldp.generateSignature(msg.getBytes());
 		
 		System.out.println("Potpis: " + signature);
 		
-		signature = generateSignature(ldp.my_key_pair.getPrivate(), msg.getBytes());
+		signature = ldp.generateSignature(msg.getBytes());
 		
 		System.out.println("Potpis: " + signature);
 		
-		boolean worked = verifySignature(ldp.my_key_pair.getPublic(), msg.getBytes(), signature);
+		boolean worked = ldp.verifySignature(msg.getBytes(), signature);
 		
 		if (worked) {
 			System.out.println("Jupi!");

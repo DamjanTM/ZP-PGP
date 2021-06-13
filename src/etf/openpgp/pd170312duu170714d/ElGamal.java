@@ -35,19 +35,19 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 public class ElGamal {
 	private KeyPair my_key_pair;
 		
-	public static byte[] encrypt(PublicKey ecPublic_, byte[] input_) throws GeneralSecurityException
+	public byte[] encrypt(byte[] input_) throws GeneralSecurityException
 	{
 		SecureRandom rand = new SecureRandom();
 		 
 		Cipher cipher = Cipher.getInstance("ElGamal", "BC");
-		cipher.init(Cipher.ENCRYPT_MODE, ecPublic_, rand);
+		cipher.init(Cipher.ENCRYPT_MODE, my_key_pair.getPublic(), rand);
 		return cipher.doFinal(input_);
 	}
 	
-	public static byte[] decrypt(PrivateKey ecPrivate_, byte[] encryptedData_) throws GeneralSecurityException
+	public byte[] decrypt(byte[] encryptedData_) throws GeneralSecurityException
 	{
 		Cipher cipher = Cipher.getInstance("ElGamal", "BC");
-		cipher.init(Cipher.DECRYPT_MODE, ecPrivate_);
+		cipher.init(Cipher.DECRYPT_MODE, my_key_pair.getPrivate());
 		return cipher.doFinal(encryptedData_);
 	}
 	
@@ -111,6 +111,10 @@ public class ElGamal {
 		return imported;
 	}
 	
+	public String returnPublicKey() {
+		return new String(my_key_pair.getPublic().getEncoded(), StandardCharsets.UTF_8);
+	}
+	
 
 	public static void main( String args[]) throws GeneralSecurityException {
 		Security.addProvider(new BouncyCastleProvider());
@@ -124,11 +128,11 @@ public class ElGamal {
 		if(lg.my_key_pair.getPrivate().equals(imported_kp.getPrivate()) && lg.my_key_pair.getPublic().equals(imported_kp.getPublic()))System.out.println("IMPORT YAY");
 		else System.out.println("IMPORT NAY");
 
-		byte[] encryptedData = encrypt(lg.my_key_pair.getPublic(), msg.getBytes());
+		byte[] encryptedData = lg.encrypt(msg.getBytes());
 		
 		System.out.println("Enkriptovani podaci: " + encryptedData);
 		
-		byte[] decryptedData = decrypt(lg.my_key_pair.getPrivate(), encryptedData);
+		byte[] decryptedData = lg.decrypt(encryptedData);
 		
 		System.out.println("Dekriptovani podaci: " + new String(decryptedData, StandardCharsets.UTF_8));
 		
