@@ -22,10 +22,19 @@ import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openpgp.PGPException;
+import org.bouncycastle.openpgp.PGPKeyPair;
+import org.bouncycastle.openpgp.PGPPublicKey;
+import org.bouncycastle.openpgp.operator.jcajce.JcaPGPKeyPair;
 
 public class DSA {
+<<<<<<< HEAD
 	private KeyPair my_key_pair;
 	
 	public byte[] generateSignature(byte[] input_) throws GeneralSecurityException
@@ -57,6 +66,7 @@ public class DSA {
 			e.printStackTrace();
 		}
     }
+<<<<<<< HEAD
 	
 	public void export_keypair() {
 		  System.out.println("exported byte array: priv: " + KeyTools.bytesToHex(my_key_pair.getPrivate().getEncoded()));
@@ -135,4 +145,29 @@ public class DSA {
 			System.out.println("Jupi!");
 		} else System.out.println("Bu hu!");
 	}
+=======
+
+    public void import_keypair(String path) {
+        if(path == null)path = "../dsa_keys.asc";
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(path));
+            String privateKeyString = reader.readLine();
+            String publicKeyString = reader.readLine();
+            byte[] privateKeyBytes = Base64.getDecoder().decode(privateKeyString);
+            byte[] publicKeyBytes = Base64.getDecoder().decode(publicKeyString);
+            KeyFactory kf = KeyFactory.getInstance("DSA"); // or "EC" or whatever
+            PKCS8EncodedKeySpec encodedKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+            PrivateKey privateKey = kf.generatePrivate(encodedKeySpec);
+            EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
+            PublicKey publicKey = kf.generatePublic(publicKeySpec);
+            my_keypair = new KeyPair(publicKey, privateKey);
+            this.my_pgp_keypair = new JcaPGPKeyPair( PGPPublicKey.DSA, my_keypair, new Date() );
+        } catch (IOException | InvalidKeySpecException | NoSuchAlgorithmException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (PGPException ex) {
+            Logger.getLogger(DSA.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+>>>>>>> 69c08f89cf7b9f14a4cac8ad23c26fa40cbb5e67
 }
