@@ -23,6 +23,7 @@ import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.Security;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.InvalidParameterSpecException;
@@ -33,6 +34,7 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.crypto.spec.DHParameterSpec;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.*;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPKeyPair;
 
@@ -45,7 +47,20 @@ public class ElGamal {
     protected PGPKeyPair my_pgp_keypair;
     private KeyPair my_keypair;
     
-    
+    ElGamal(int size_){
+        try {
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("ElGamal", "BC");
+            keyPairGenerator.initialize(size_);
+            KeyPair keyPair = keyPairGenerator.generateKeyPair();
+            this.my_keypair = keyPair;
+            this.my_pgp_keypair = new JcaPGPKeyPair( PGPPublicKey.ELGAMAL_ENCRYPT, my_keypair, new Date() );
+            if(my_pgp_keypair==null)System.out.println("NOOOOOPE");
+        } catch (NoSuchAlgorithmException | NoSuchProviderException  e) 
+        {System.out.println("NoSuchAlgorithmException | NoSuchProviderException | \n" +
+"                InvalidAlgorithmParameterException | InvalidParameterSpecException");} catch (PGPException ex) {
+            Logger.getLogger(ElGamal.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     public void setMy_pgp_keypair(PGPKeyPair my_pgp_keypair) {
         this.my_pgp_keypair = my_pgp_keypair;
     }
@@ -61,39 +76,22 @@ public class ElGamal {
     public KeyPair getMy_keypair() {
         return my_keypair;
     }
-
-    public void generate_keypair(int size_) {
-        try {
-            AlgorithmParameterGenerator a = AlgorithmParameterGenerator.getInstance("ElGamal", "BC");
-            a.init(size_, new SecureRandom());
-            AlgorithmParameters params = a.generateParameters();
-            DHParameterSpec elP = (DHParameterSpec)params.getParameterSpec(DHParameterSpec.class);
-
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("ElGamal", "BC");
-            keyPairGenerator.initialize(elP);
-            KeyPair keyPair = keyPairGenerator.generateKeyPair();
-            this.my_keypair = keyPair;
-            this.my_pgp_keypair = new JcaPGPKeyPair( PGPPublicKey.ELGAMAL_ENCRYPT, my_keypair, new Date() );
-        } catch (NoSuchAlgorithmException | NoSuchProviderException | 
-                InvalidAlgorithmParameterException | InvalidParameterSpecException e) 
-        {} catch (PGPException ex) {
-            Logger.getLogger(ElGamal.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
     
     public void export_keypair() {
         try (FileOutputStream stream = new FileOutputStream("../eg_keys.asc"); 
                 BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(stream))) {
-            bw.write(Base64.getEncoder().encodeToString(my_keypair.getPrivate().getEncoded()));
+            if(my_pgp_keypair==null)System.out.println("NO PGP NOOOO");
+            byte[] data = my_pgp_keypair.getPrivateKey().getPrivateKeyDataPacket().getEncoded();
+            System.out.println("priv:" + Base64.getEncoder().encodeToString(data));
+            bw.write(Base64.getEncoder().encodeToString(data));
             bw.newLine();
-            bw.write(Base64.getEncoder().encodeToString(my_keypair.getPublic().getEncoded()));
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-
-        }
+            data = my_pgp_keypair.getPublicKey().getEncoded();
+            System.out.println("priv:" + Base64.getEncoder().encodeToString(data));
+            bw.write(Base64.getEncoder().encodeToString(data));
+        } catch (IOException ex) {
+            System.out.println("IOException");
+            Logger.getLogger(ElGamal.class.getName()).log(Level.SEVERE, null, ex);
+        } 
     }
 	
     public void import_keypair(String path) {

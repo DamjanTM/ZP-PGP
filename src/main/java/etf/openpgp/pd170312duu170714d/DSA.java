@@ -51,19 +51,19 @@ public class DSA {
         return my_keypair;
     }
     
-    public void generate_keypair(int key_size_) {
-    try {
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA");
-        keyPairGenerator.initialize(key_size_);
-        this.my_keypair = keyPairGenerator.generateKeyPair();
-        this.my_pgp_keypair = new JcaPGPKeyPair( PGPPublicKey.DSA, my_keypair, new Date() );
-    } catch (NoSuchAlgorithmException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-    }   catch (PGPException ex) {
+    DSA(int key_size_){
+        try {
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA");
+            keyPairGenerator.initialize(key_size_);
+            this.my_keypair = keyPairGenerator.generateKeyPair();
+            this.my_pgp_keypair = new JcaPGPKeyPair( PGPPublicKey.DSA, my_keypair, new Date() );
+        } catch (NoSuchAlgorithmException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }   catch (PGPException ex) {
             Logger.getLogger(DSA.class.getName()).log(Level.SEVERE, null, ex);
         }
-}
+    }
 
     public void export_keypair() {
         try (FileOutputStream stream = new FileOutputStream("../dsa_keys.asc")) {

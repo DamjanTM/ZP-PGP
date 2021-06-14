@@ -32,6 +32,7 @@ public class SecretKeyChain {
     
     public SecretKeyChain(){
         try {
+            Utils.touch_file(new File("./secret_keychain.asc"));
             secretKeyRingCollection = new PGPSecretKeyRingCollection(
                     new ArmoredInputStream(
                             new FileInputStream( new File( "./secret_keychain.asc" ) ) ),
@@ -84,9 +85,40 @@ public class SecretKeyChain {
         secretKeyRingCollection = PGPSecretKeyRingCollection.removeSecretKeyRing( secretKeyRingCollection, secretKeyRing );
     }
      
-     
-     
-     public void saveKeysToFile(File file) {
+    public PGPSecretKeyRing getSecretKeyRing( long keyID )
+    {
+        Iterator<PGPSecretKeyRing> i = this.secretKeyRingCollection.getKeyRings();
+        while( i.hasNext() )
+        {
+            PGPSecretKeyRing keyRing = i.next();
+            Iterator<PGPSecretKey> keyIter = keyRing.getSecretKeys();
+
+            while( keyIter.hasNext() )
+            {
+                PGPSecretKey key = keyIter.next();
+                if( key.getKeyID() == keyID )
+                {
+                    return keyRing;
+                }
+            }
+        }
+        return null;
+    }
+    
+    public static void exportSecretKey( PGPSecretKeyRing publicKeyRing, String path ){
+        File file = new File(path);
+        try( ArmoredOutputStream aos = new ArmoredOutputStream( new FileOutputStream( file ) ) )
+        {
+            publicKeyRing.encode( aos );
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(SecretKeyChain.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(SecretKeyChain.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void saveKeysToFile(File file) {
+        if(file == null)new File("../secret_ring_file.asc");
         try( ArmoredOutputStream aos = new ArmoredOutputStream( new FileOutputStream( file) ) )
         {
             secretKeyRingCollection.encode( aos );

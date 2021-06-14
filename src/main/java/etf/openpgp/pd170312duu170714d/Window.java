@@ -7,6 +7,7 @@ package etf.openpgp.pd170312duu170714d;
 
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,6 +23,8 @@ import javax.swing.table.DefaultTableModel;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPEncryptedData;
 import org.bouncycastle.openpgp.PGPException;
+import org.bouncycastle.openpgp.PGPKeyRingGenerator;
+import org.bouncycastle.openpgp.PGPPublicKeyRing;
 import org.bouncycastle.openpgp.PGPSecretKey;
 import org.bouncycastle.openpgp.PGPSecretKeyRing;
 
@@ -785,8 +788,18 @@ public class Window extends javax.swing.JFrame {
         });
 
         jButton9.setText("Izvezi");
+        jButton9.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                export_pub_keyActionPerformed(evt);
+            }
+        });
 
         jButton8.setText("Izbriši");
+        jButton8.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                delete_pub_keyActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout publicKeyPanelLayout = new javax.swing.GroupLayout(publicKeyPanel);
         publicKeyPanel.setLayout(publicKeyPanelLayout);
@@ -847,6 +860,11 @@ public class Window extends javax.swing.JFrame {
         });
 
         jButton11.setText("Izvezi");
+        jButton11.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton11ActionPerformed(evt);
+            }
+        });
 
         jButton12.setText("Generiši Ključeve");
         jButton12.addActionListener(new java.awt.event.ActionListener() {
@@ -856,6 +874,11 @@ public class Window extends javax.swing.JFrame {
         });
 
         jButton7.setText("Izbriši");
+        jButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                delete_private_keyActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout privateKeyPanelLayout = new javax.swing.GroupLayout(privateKeyPanel);
         privateKeyPanel.setLayout(privateKeyPanelLayout);
@@ -1070,6 +1093,26 @@ public class Window extends javax.swing.JFrame {
 
     private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
         generatorDialog.setVisible(true);
+        //generisanje kljuceva
+        //potrebni text-fieldovi za ime, email, sifru i biranje dsa i elgamal velicina
+        
+        String ime = "";
+        String email = "";
+        String password = "";
+        
+        int dsa_size = 0;
+        int eg_size = 0;
+        
+        String userID = ime + " <" + email + ">";
+        
+        KeyRingGen krg = new KeyRingGen(dsa_size, eg_size, ime, email, password);
+        sKeyChain.addSecretKey(krg.get_keyring_generator());
+        pKeyChain.addPublicKey(krg.get_keyring_generator());
+        sKeyChain.saveKeysToFile(null);
+        pKeyChain.saveKeysToFile(null);
+
+        //postaviti sva text polja na default i ispisati uspesnost
+        //dodati nove kljuceve na listu korisnikovih kljuceva
     }//GEN-LAST:event_jButton12ActionPerformed
 
     private void privateKeyImportButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_privateKeyImportButActionPerformed
@@ -1087,6 +1130,10 @@ public class Window extends javax.swing.JFrame {
 
         // TO-DO Ovde treba importovati selektovani fajl (directory)
         
+        sKeyChain.importSecretKey( directory.toString() );
+        sKeyChain.saveKeysToFile(null);
+        //update tabele
+        
     }//GEN-LAST:event_privateKeyImportButActionPerformed
 
     private void publicKeyImportButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_publicKeyImportButActionPerformed
@@ -1103,7 +1150,61 @@ public class Window extends javax.swing.JFrame {
         }
 
         // TO-DO Ovde treba importovati selektovani fajl (directory)
+        pKeyChain.importPublicKey(directory.toString());
+        pKeyChain.saveKeysToFile(null);
+        
+        //apdejt tabele
     }//GEN-LAST:event_publicKeyImportButActionPerformed
+
+    private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
+        // TODO add your handling code here:
+        //export privatnog kljuca
+        
+        //treba mi keyID od selektovanog kljuca i putanja zeljene destinacije 
+        long keyID = 0;
+        String path = null;
+        PGPSecretKeyRing export_keypair = sKeyChain.getSecretKeyRing( keyID );
+        sKeyChain.exportSecretKey( export_keypair, path );
+    }//GEN-LAST:event_jButton11ActionPerformed
+
+    private void delete_private_keyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delete_private_keyActionPerformed
+        // TODO add your handling code here:
+        
+        //dohvati keyID
+        long keyID = 0;
+        PGPSecretKeyRing delete = sKeyChain.getSecretKeyRing( keyID );
+        sKeyChain.removeSecretKey(delete);
+        sKeyChain.saveKeysToFile(null);
+        
+        //apdejt tabele
+        
+    }//GEN-LAST:event_delete_private_keyActionPerformed
+
+    private void export_pub_keyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_export_pub_keyActionPerformed
+        // TODO add your handling code here:
+        
+        //dohvati putanju i keyid
+        String path = null;
+        long keyID = 0;
+        
+        
+        PGPPublicKeyRing export = pKeyChain.getPublicKeyRing( keyID );
+        pKeyChain.exportPublicKey(export, path);
+        pKeyChain.saveKeysToFile(null);
+        
+    }//GEN-LAST:event_export_pub_keyActionPerformed
+
+    private void delete_pub_keyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delete_pub_keyActionPerformed
+        // TODO add your handling code here:
+        //dohvati keyID
+        long keyID = 0;
+        PGPPublicKeyRing delete = pKeyChain.getPublicKeyRing( keyID );
+        pKeyChain.removePublicKey(delete);
+        pKeyChain.saveKeysToFile(null);
+        
+        //apdejt tabele
+        
+    }//GEN-LAST:event_delete_pub_keyActionPerformed
 
     /**
      * @param args the command line arguments
