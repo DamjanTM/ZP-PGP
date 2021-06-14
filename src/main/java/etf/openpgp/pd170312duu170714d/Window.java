@@ -39,6 +39,7 @@ public class Window extends javax.swing.JFrame {
     private String startingFolder = System.getProperty("user.home")+"\\Desktop";
     private SecretKeyChain sKeyChain = new SecretKeyChain();
     private PublicKeyChain pKeyChain = new PublicKeyChain();
+    private String readingFile = "";
     
     public Window() {
         initComponents();
@@ -126,7 +127,7 @@ public class Window extends javax.swing.JFrame {
         recievePanel = new javax.swing.JPanel();
         jLabel21 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea2 = new javax.swing.JTextArea();
+        recieveTextArea = new javax.swing.JTextArea();
         jButton14 = new javax.swing.JButton();
         jButton15 = new javax.swing.JButton();
         jPasswordField1 = new javax.swing.JPasswordField();
@@ -375,7 +376,7 @@ public class Window extends javax.swing.JFrame {
                 .addComponent(jButton2)
                 .addGap(12, 12, 12)
                 .addComponent(jButton3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 150, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 120, Short.MAX_VALUE)
                 .addComponent(jLabel20)
                 .addContainerGap())
         );
@@ -700,11 +701,16 @@ public class Window extends javax.swing.JFrame {
         jLabel21.setFont(new java.awt.Font("Calibri", 1, 24)); // NOI18N
         jLabel21.setText("Primanje Poruke");
 
-        jTextArea2.setColumns(20);
-        jTextArea2.setRows(5);
-        jScrollPane2.setViewportView(jTextArea2);
+        recieveTextArea.setColumns(20);
+        recieveTextArea.setRows(5);
+        jScrollPane2.setViewportView(recieveTextArea);
 
         jButton14.setText("Uvezi poruku");
+        jButton14.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton14ActionPerformed(evt);
+            }
+        });
 
         jButton15.setText("Nazad");
         jButton15.addActionListener(new java.awt.event.ActionListener() {
@@ -754,7 +760,7 @@ public class Window extends javax.swing.JFrame {
                     .addGap(19, 19, 19)
                     .addComponent(jLabel21)
                     .addGap(29, 29, 29)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 289, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                     .addGroup(recievePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jButton15)
@@ -1331,6 +1337,33 @@ public class Window extends javax.swing.JFrame {
         
     }//GEN-LAST:event_delete_pub_keyActionPerformed
 
+    private void jButton14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton14ActionPerformed
+        try {
+            Path directory = null;
+            JFileChooser chooser = new JFileChooser(startingFolder);
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("PGP Message Files", "gpg");
+            chooser.setFileFilter(filter);
+            int returnVal = chooser.showOpenDialog(new JPanel());
+            if(returnVal == JFileChooser.APPROVE_OPTION) {
+                directory = Paths.get(chooser.getSelectedFile().getPath());
+                startingFolder = chooser.getSelectedFile().getParentFile().getPath();
+            }
+            
+            String file = Files.readString(directory);
+            try {
+                byte[] ret = PGP.decryptFile(file, sKeyChain, null);
+                recieveTextArea.setText(new String(ret));
+                
+            } catch (IllegalArgumentException ex) {
+                recieveTextArea.setText("Poruka je enkriptovana!");
+                return;
+            }
+            
+        } catch (IOException ex) {
+            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButton14ActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1441,7 +1474,6 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
-    private javax.swing.JTextArea jTextArea2;
     private javax.swing.JTabbedPane keyringPanel;
     private javax.swing.JTextArea msgTextArea;
     private javax.swing.JTextField nameField;
@@ -1453,6 +1485,7 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JPanel publicKeyPanel;
     private javax.swing.JTable publicKeyTable;
     private javax.swing.JPanel recievePanel;
+    private javax.swing.JTextArea recieveTextArea;
     private javax.swing.JButton sendMsgBut;
     private javax.swing.JTabbedPane sendPanel;
     private javax.swing.JPasswordField sendPasswordField;
