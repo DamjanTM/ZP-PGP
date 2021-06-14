@@ -7,9 +7,13 @@ package etf.openpgp.pd170312duu170714d;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -146,6 +150,32 @@ public class Utils {
 
         previousPath = jFileChooser.getCurrentDirectory();
         return filePath;
+    }
+    
+    public static void writeToFile( String filePath, byte[] content )
+    {
+        File outputFile = new File( filePath );
+        outputFile.createNewFile();
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream( filePath );
+            fos.write( content );
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    public static void writeToFile( String filePath, String content )
+    {
+        try( PrintWriter out = new PrintWriter( filePath ) )
+        {
+            out.println( content );
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 }

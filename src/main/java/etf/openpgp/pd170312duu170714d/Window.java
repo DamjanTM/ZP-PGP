@@ -7,12 +7,17 @@ package etf.openpgp.pd170312duu170714d;
 
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.SecureRandom;
 import java.security.Security;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,31 +26,97 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import org.bouncycastle.bcpg.HashAlgorithmTags;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openpgp.PGPCompressedData;
+import org.bouncycastle.openpgp.PGPCompressedDataGenerator;
 import org.bouncycastle.openpgp.PGPEncryptedData;
+import org.bouncycastle.openpgp.PGPEncryptedDataGenerator;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPKeyRingGenerator;
+import org.bouncycastle.openpgp.PGPLiteralData;
+import org.bouncycastle.openpgp.PGPLiteralDataGenerator;
+import org.bouncycastle.openpgp.PGPOnePassSignature;
+import org.bouncycastle.openpgp.PGPPrivateKey;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPPublicKeyRing;
 import org.bouncycastle.openpgp.PGPSecretKey;
 import org.bouncycastle.openpgp.PGPSecretKeyRing;
+import org.bouncycastle.openpgp.PGPSignature;
+import org.bouncycastle.openpgp.PGPSignatureGenerator;
+import org.bouncycastle.openpgp.PGPSignatureSubpacketGenerator;
+import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentSignerBuilder;
+import org.bouncycastle.openpgp.operator.jcajce.JcePBESecretKeyDecryptorBuilder;
+import org.bouncycastle.openpgp.operator.jcajce.JcePGPDataEncryptorBuilder;
+import org.bouncycastle.openpgp.operator.jcajce.JcePublicKeyKeyEncryptionMethodGenerator;
+import org.bouncycastle.util.encoders.Base64;
 
 /**
  *
  * @author Damjan
  */
+
 public class Window extends javax.swing.JFrame {
 
     private String startingFolder = System.getProperty("user.home")+"\\Desktop";
     private SecretKeyChain sKeyChain = new SecretKeyChain();
     private PublicKeyChain pKeyChain = new PublicKeyChain();
-    private String readingFile = "";
     
     public Window() {
         initComponents();
         Security.addProvider(new BouncyCastleProvider());
     }
 
+    public static class SimpleRFC288Message 
+    {
+        public String emailFrom;
+        public String emailTo;
+        public String message;
+        
+        public SimpleRFC288Message(String emailFrom, String emailTo, String message)
+        {
+            this.emailFrom = emailFrom;
+            this.emailTo = emailTo;
+            this.message = message;
+        }
+        
+        public static SimpleRFC288Message fromSimplifiedRFC822(String srfc822) {
+            try {
+                int emailFromIndex = srfc822.indexOf("\n");
+                String emailFrom = srfc822.substring(6, emailFromIndex);  // From: 
+                srfc822 = srfc822.substring(emailFromIndex + 1, srfc822.length());
+
+                int emailToIndex = srfc822.indexOf("\n");
+                String emailTo = srfc822.substring(4, emailToIndex);  // To:
+                srfc822 = srfc822.substring(emailToIndex + 1, srfc822.length());
+
+                int messageStartIndex = srfc822.indexOf("\n");
+                String message = srfc822.substring(messageStartIndex + 1, srfc822.length());
+
+                return new SimpleRFC288Message(emailFrom, emailTo, message);
+            }
+            catch(Exception e) {
+                return new SimpleRFC288Message("", "", srfc822);
+            }
+        }
+        
+        public String ConvertToSimplifiedRFC822()
+        {
+            String srfc822 = "From: " + emailFrom + "\n"
+                    + "To: " + emailTo + "\n"
+                    + "Message: " + "\n"
+                    + message;
+
+            return srfc822;
+        }
+        
+        public void print()
+        {
+            System.out.println("From: " + emailFrom);
+            System.out.println("To: " + emailTo);
+            System.out.println("Message:\n" + message);
+        }
+    };
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -93,7 +164,6 @@ public class Window extends javax.swing.JFrame {
         jButton5 = new javax.swing.JButton();
         jLabel25 = new javax.swing.JLabel();
         fromComboBox = new javax.swing.JComboBox<>();
-        toTextField = new javax.swing.JTextField();
         toComboBox = new javax.swing.JComboBox<>();
         toAddBut = new javax.swing.JButton();
         jLabel26 = new javax.swing.JLabel();
@@ -116,8 +186,8 @@ public class Window extends javax.swing.JFrame {
         jLabel12 = new javax.swing.JLabel();
         doEncryptSym = new javax.swing.JCheckBox();
         jLabel18 = new javax.swing.JLabel();
-        jRadioButton6 = new javax.swing.JRadioButton();
-        jRadioButton7 = new javax.swing.JRadioButton();
+        j3desEncryptionRadioButton = new javax.swing.JRadioButton();
+        jIDEAEncryptionRadioButton = new javax.swing.JRadioButton();
         jLabel13 = new javax.swing.JLabel();
         doSerialize = new javax.swing.JCheckBox();
         jLabel19 = new javax.swing.JLabel();
@@ -127,7 +197,7 @@ public class Window extends javax.swing.JFrame {
         recievePanel = new javax.swing.JPanel();
         jLabel21 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        recieveTextArea = new javax.swing.JTextArea();
+        jTextArea2 = new javax.swing.JTextArea();
         jButton14 = new javax.swing.JButton();
         jButton15 = new javax.swing.JButton();
         jPasswordField1 = new javax.swing.JPasswordField();
@@ -383,6 +453,12 @@ public class Window extends javax.swing.JFrame {
 
         jCardPanel.add(homePanel, "homeCard");
 
+        sendPanel.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                sendPanelComponentShown(evt);
+            }
+        });
+
         jLabel2.setFont(new java.awt.Font("Calibri", 1, 24)); // NOI18N
         jLabel2.setText("Sadržaj Poruke");
 
@@ -405,8 +481,6 @@ public class Window extends javax.swing.JFrame {
         });
 
         jLabel25.setText("Od:");
-
-        toTextField.setEditable(false);
 
         toComboBox.setSelectedItem(publicKeyTable);
 
@@ -442,12 +516,10 @@ public class Window extends javax.swing.JFrame {
                             .addGroup(jPanel2Layout.createSequentialGroup()
                                 .addComponent(fromComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel3))
-                            .addComponent(toTextField))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(sendPasswordField)
-                            .addComponent(toComboBox, 0, 186, Short.MAX_VALUE))
+                                .addComponent(jLabel3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(sendPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(toComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(toAddBut)))
                 .addContainerGap())
@@ -465,7 +537,6 @@ public class Window extends javax.swing.JFrame {
                     .addComponent(jLabel3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(toTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(toComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(toAddBut)
                     .addComponent(jLabel26))
@@ -545,12 +616,12 @@ public class Window extends javax.swing.JFrame {
         jLabel18.setFont(new java.awt.Font("Calibri", 1, 14)); // NOI18N
         jLabel18.setText("Simetrična enkripcija koristeći jedan od sledećih algoritama.");
 
-        encriptionAlgBG.add(jRadioButton6);
-        jRadioButton6.setSelected(true);
-        jRadioButton6.setText("3DES");
+        encriptionAlgBG.add(j3desEncryptionRadioButton);
+        j3desEncryptionRadioButton.setSelected(true);
+        j3desEncryptionRadioButton.setText("3DES");
 
-        encriptionAlgBG.add(jRadioButton7);
-        jRadioButton7.setText("IDEA");
+        encriptionAlgBG.add(jIDEAEncryptionRadioButton);
+        jIDEAEncryptionRadioButton.setText("IDEA");
 
         jLabel13.setFont(new java.awt.Font("Calibri", 1, 24)); // NOI18N
         jLabel13.setText("Enkodovanje");
@@ -625,9 +696,9 @@ public class Window extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(doSerialize))
                             .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(jRadioButton6)
+                                .addComponent(j3desEncryptionRadioButton)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jRadioButton7)))
+                                .addComponent(jIDEAEncryptionRadioButton)))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
             .addGroup(jPanel3Layout.createSequentialGroup()
@@ -676,8 +747,8 @@ public class Window extends javax.swing.JFrame {
                 .addComponent(jLabel18)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jRadioButton6)
-                    .addComponent(jRadioButton7))
+                    .addComponent(j3desEncryptionRadioButton)
+                    .addComponent(jIDEAEncryptionRadioButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(doSerialize, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -701,16 +772,11 @@ public class Window extends javax.swing.JFrame {
         jLabel21.setFont(new java.awt.Font("Calibri", 1, 24)); // NOI18N
         jLabel21.setText("Primanje Poruke");
 
-        recieveTextArea.setColumns(20);
-        recieveTextArea.setRows(5);
-        jScrollPane2.setViewportView(recieveTextArea);
+        jTextArea2.setColumns(20);
+        jTextArea2.setRows(5);
+        jScrollPane2.setViewportView(jTextArea2);
 
         jButton14.setText("Uvezi poruku");
-        jButton14.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton14ActionPerformed(evt);
-            }
-        });
 
         jButton15.setText("Nazad");
         jButton15.addActionListener(new java.awt.event.ActionListener() {
@@ -760,7 +826,7 @@ public class Window extends javax.swing.JFrame {
                     .addGap(19, 19, 19)
                     .addComponent(jLabel21)
                     .addGap(29, 29, 29)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 289, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                     .addGroup(recievePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jButton15)
@@ -1018,8 +1084,343 @@ public class Window extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_nameFieldActionPerformed
 
+    private static byte[] createLiteralPacket(
+            byte[] message ) throws IOException
+    {
+        if( message == null )
+            return null;
+
+        ByteArrayOutputStream messageStream = null;
+        OutputStream literalDataStream = null;
+
+        
+        // create a message stream for the resulting packet
+        messageStream = new ByteArrayOutputStream();
+
+        // create a literal data packet generator and stream with the above message stream
+        PGPLiteralDataGenerator literalDataGen = new PGPLiteralDataGenerator();
+        literalDataStream = literalDataGen.open(
+                messageStream,
+                PGPLiteralData.BINARY,
+                "filename", // FIXME: this should be specified in the function parameters
+                new Date(),
+                new byte[50000]
+        );
+
+        // write the data packet to the message body and close the literal packet stream
+        literalDataStream.write( message );
+        literalDataStream.close();
+
+        // overwrite the message buffer and close the message stream
+        message = messageStream.toByteArray();
+        messageStream.close();
+
+        // return the message
+        return message;
+    }
+    private static byte[] createSignaturePackets(
+            byte[] message,
+            PGPSecretKey senderSecretKey,
+            char[] senderPassphrase ) throws IOException
+    {
+        try {
+            if( message == null || senderSecretKey == null || senderPassphrase == null )
+                return null;
+            
+            ByteArrayOutputStream messageStream = null;
+            PGPPrivateKey senderPrivateKey = senderSecretKey.extractPrivateKey(
+                    new JcePBESecretKeyDecryptorBuilder()
+                            .setProvider( "BC" )
+                            .build( senderPassphrase )
+            );
+            // get the sender's public key
+            PGPPublicKey senderPublicKey = senderSecretKey.getPublicKey();
+            // get the sender's public key id
+            String senderPublicKeyId = ( String )senderPublicKey.getUserIDs().next();
+            
+            // make a signature generator
+            PGPSignatureGenerator signatureGen = new PGPSignatureGenerator(
+                    new JcaPGPContentSignerBuilder(
+                            senderSecretKey.getPublicKey().getAlgorithm(),
+                            HashAlgorithmTags.SHA256
+                    ).setProvider( "BC" )
+            );
+            signatureGen.init( PGPSignature.BINARY_DOCUMENT, senderPrivateKey );
+            
+            // make a generator for the signature's header subpackets
+            PGPSignatureSubpacketGenerator signatureSubpacketGen = new PGPSignatureSubpacketGenerator();
+            signatureSubpacketGen.setSignerUserID( /*isCritical=*/ false, senderPublicKeyId );
+            signatureSubpacketGen.setSignatureCreationTime( /*isCritical=*/ false, new Date() );
+            signatureSubpacketGen.setPreferredHashAlgorithms( /*isCritical=*/ false, new int[]
+            {
+                HashAlgorithmTags.SHA256
+            } );
+            signatureSubpacketGen.setPreferredSymmetricAlgorithms( /*isCritical=*/ false, new int[]
+            {
+                PGPEncryptedData.IDEA, PGPEncryptedData.TRIPLE_DES
+            } );
+            signatureSubpacketGen.setPreferredCompressionAlgorithms( /*isCritical=*/ false, new int[]
+            {
+                PGPCompressedData.ZIP
+            } );
+            
+            // set the hashed subpackets in the signature
+            signatureGen.setHashedSubpackets( signatureSubpacketGen.generate() );
+            
+            // create a one-pass signature header (parameter header in front of the message used for calculating the message signature in one pass)
+            PGPOnePassSignature signatureHeader = signatureGen.generateOnePassVersion( /*isNested=*/ false );
+            // create a literal packet from the message body
+            byte[] literalPacket = createLiteralPacket( message );
+            // update the message digest by hashing the message body
+            signatureGen.update( message );
+            // create a signature by signing the message digest with the sender's private key
+            PGPSignature signature = signatureGen.generate();
+            
+            messageStream = new ByteArrayOutputStream();
+            // prepend the signature one-pass header
+            signatureHeader.encode( messageStream );
+            // write the literal data packet
+            messageStream.write( literalPacket );
+            // append the signature packet
+            signature.encode( messageStream );
+            
+            // overwrite the message buffer and close the message stream
+            message = messageStream.toByteArray();
+            messageStream.close();
+            
+            return message;
+        } catch (PGPException ex) {
+            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+        
+    }
+    
+    private static byte[] createCompressedPacket(
+            byte[] message ) throws IOException
+    {
+        if( message == null )
+            return null;
+
+        ByteArrayOutputStream messageStream = null;
+        OutputStream compressedDataStream = null;
+
+        // create a compressed data packet stream
+        messageStream = new ByteArrayOutputStream();
+        PGPCompressedDataGenerator compressedDataGen = new PGPCompressedDataGenerator( PGPCompressedData.ZIP );
+        compressedDataStream = compressedDataGen.open( messageStream );
+
+        // write the compressed data packet to the message stream and close the compressed data stream
+        compressedDataStream.write( message );
+        compressedDataStream.close();
+
+        // overwrite the message buffer and close the message stream
+        message = messageStream.toByteArray();
+        messageStream.close();
+
+        return message;
+    }
+    
+    private static byte[] createEncryptedPacket(
+            byte[] message,
+            PGPPublicKey receiverPublicKey,
+            PGP.EncryptionAlgorithm encryptionAlgorithm,
+            char[] senderPassphrase ) throws IOException
+    {
+        try {
+            if( message == null || receiverPublicKey == null || senderPassphrase == null )
+                return null;
+            
+            ByteArrayOutputStream messageStream = null;
+            OutputStream encryptedDataStream = null;
+            
+            // create an encryption generator
+            PGPEncryptedDataGenerator encryptedDataGen = new PGPEncryptedDataGenerator(
+                    new JcePGPDataEncryptorBuilder( encryptionAlgorithm.id )
+                            .setProvider( "BC" )
+                            .setSecureRandom( new SecureRandom() )
+                            .setWithIntegrityPacket( true )
+            );
+            encryptedDataGen.addMethod(
+                    new JcePublicKeyKeyEncryptionMethodGenerator( receiverPublicKey )
+                            .setProvider( "BC" )
+            );
+            
+            // make an encrypted output stream using the encryption generator
+            messageStream = new ByteArrayOutputStream();
+            encryptedDataStream = encryptedDataGen.open( messageStream, new byte[50000] );
+            
+            // write the encrypted data packet to the message stream and close the encrypted data stream
+            encryptedDataStream.write( message );
+            encryptedDataStream.close();
+            
+            // overwrite the message buffer and close the message stream
+            message = messageStream.toByteArray();
+            messageStream.close();
+            
+            return message;
+        } catch (PGPException ex) {
+            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+        
+    }
+    
+    public static byte[] createPgpMessage(
+            byte[] message,
+            PGPSecretKey senderDsaSecretKey,
+            PGPPublicKey receiverElGamalPublicKey,
+            PGP.EncryptionAlgorithm encryptionAlgorithm,
+            char[] senderPassphrase,
+            boolean addSignature,
+            boolean addCompression,
+            boolean addConversionToRadix64 ) throws IOException
+    {
+        // create a literal data packet from the message body
+        // ! only if the message is not going to be signed
+        if( !addSignature )
+            message = createLiteralPacket( message );
+
+        // if the message should be signed, append a signature packet
+        if( addSignature )
+            message = createSignaturePackets( message, senderDsaSecretKey, senderPassphrase );
+
+        // if the message should be compressed, turn it into a compressed packet
+        if( addCompression )
+            message = createCompressedPacket( message );
+
+        // if the message should be encrypted, turn it into an encrypted packet
+        if( encryptionAlgorithm != PGP.EncryptionAlgorithm.NONE )
+            message = createEncryptedPacket( message, receiverElGamalPublicKey, encryptionAlgorithm, senderPassphrase );
+
+        // if the message should be converted into radix64 format, encode it into that format
+        if( addConversionToRadix64 )
+            message = Base64.encode( message );
+
+        return message;
+    }
+    
     private void sendMsgButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendMsgButActionPerformed
         // CHECK IF PASSWORD IS OK <---------------------------------------------------
+        //trykod
+        String textMessage = msgTextArea.getText();
+
+        // Read encryption metadata
+        boolean addSignature = doSign.isSelected();
+        boolean addCompression = doZip.isSelected();
+        boolean addConversionToRadix64 = doSerialize.isSelected();
+
+        // Read sender secret key id
+        int senderKeyComboBoxIndex = fromComboBox.getSelectedIndex();
+        String senderNameAndKeyID = fromComboBox.getItemAt( senderKeyComboBoxIndex );
+        if( senderNameAndKeyID == null )
+            return;
+        
+        String senderKeyIdHexString = senderNameAndKeyID.split( "\\|" )[ 1 ];
+        long senderKeyID = Utils.hexStringToKeyId( senderKeyIdHexString );
+
+        // Read sender secret key
+        PGPSecretKeyRing senderSecretKeyring;
+        PGPSecretKey senderSecretKey;
+        senderSecretKeyring = sKeyChain.getSecretKeyRing( senderKeyID );
+        Iterator<PGPSecretKey> keyIter = senderSecretKeyring.getSecretKeys();
+        senderSecretKey = keyIter.next();
+
+        // Read sender passphrase
+        char[] senderPassphrase = sendPasswordField.getPassword();
+
+        try {
+            if( addSignature && !SecretKeyChain.isValidPassphrase( senderSecretKeyring, 0, senderPassphrase ) )
+            {
+                return;
+            }
+        } catch (PGPException ex) {
+            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        // check if there is at least one selected recepient
+        for( int i = 0; i < toComboBox.getItemCount(); i++ )
+        {
+            // Read receiver public key id
+            String receiverNameEmailAndKeyID = toComboBox.getItemAt( i );
+            if( "x ".equals( receiverNameEmailAndKeyID.substring( 0, 2 ) ) )
+            {
+                break;
+            }
+            if( i == toComboBox.getItemCount() - 1 )
+                return;
+        }
+
+        // get the file path
+        String selectedFilePath = Utils.getUserSelectedFilePath( Utils.SAVE_DIALOG, Utils.PGP_MESSAGE_FILE );
+        if( selectedFilePath == null )
+            return;
+
+        int sentMessagesCount = 0;
+        for( int i = 0; i < toComboBox.getItemCount(); i++ )
+        {
+            // Read sender email
+            String senderNameEmailAndKeyID = fromComboBox.getItemAt( fromComboBox.getSelectedIndex() );
+            
+            // Read receiver public key id
+            String receiverNameEmailAndKeyID = toComboBox.getItemAt( i );
+            String originalReceiverNameEmailAndKeyID = toComboBox.getItemAt( i );
+            originalReceiverNameEmailAndKeyID = originalReceiverNameEmailAndKeyID.substring(2, originalReceiverNameEmailAndKeyID.length());
+            if( !"x ".equals( receiverNameEmailAndKeyID.substring( 0, 2 ) ) )
+            {
+                continue;
+            }
+            // remove the selection symbol from the receiver name, email and key id
+            receiverNameEmailAndKeyID = receiverNameEmailAndKeyID.substring( 2 );
+
+            // get the receiver key id
+            String receiverKeyIdHexString = receiverNameEmailAndKeyID.split( "> \\| " )[ 1 ];
+            long receiverKeyID = Utils.hexStringToKeyId( receiverKeyIdHexString );
+
+            // fix the receiver name, email and key id string
+            receiverNameEmailAndKeyID = receiverNameEmailAndKeyID.replaceAll( "<", "[" );
+            receiverNameEmailAndKeyID = receiverNameEmailAndKeyID.replaceAll( ">", "]" );
+            receiverNameEmailAndKeyID = receiverNameEmailAndKeyID.replaceAll( "\\|", "." );
+
+            // Read receiver public key
+            PGPPublicKey receiverPublicKey;
+            PGPPublicKeyRing receiverKeyRing = pKeyChain.getPublicKeyRing( receiverKeyID );
+            Iterator<PGPPublicKey> pubKeyIter = receiverKeyRing.getPublicKeys();
+            pubKeyIter.next();   // skip the DSA signing key, and use the ElGamal encryption key
+            receiverPublicKey = pubKeyIter.next();
+
+            // Read encryption algorithm
+            PGP.EncryptionAlgorithm encryptionAlgorithm = PGP.EncryptionAlgorithm.NONE;
+
+            if(j3desEncryptionRadioButton.isSelected())encryptionAlgorithm = PGP.EncryptionAlgorithm.ELGAMAL_3DES;
+            else if(jIDEAEncryptionRadioButton.isSelected())encryptionAlgorithm = PGP.EncryptionAlgorithm.ELGAMAL_IDEA;
+            if(doEncryptSym.isSelected()) encryptionAlgorithm = PGP.EncryptionAlgorithm.NONE;
+            
+            byte[] byteMessage = new SimpleRFC288Message(senderNameEmailAndKeyID, originalReceiverNameEmailAndKeyID, textMessage).ConvertToSimplifiedRFC822().getBytes();
+
+            // Encryption
+            byte[] encryptedMessage = null;
+            try {
+                encryptedMessage = createPgpMessage(
+                        byteMessage,
+                        senderSecretKey,
+                        receiverPublicKey,
+                        encryptionAlgorithm,
+                        senderPassphrase,
+                        addSignature,
+                        addCompression,
+                        addConversionToRadix64 );
+            } catch (IOException ex) {
+                Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            // Append receiver name to file path
+            String filePath = selectedFilePath.replaceAll( "(\\..*)$", " . " + receiverNameEmailAndKeyID + "$1" );
+            Utils.writeToFile( filePath, encryptedMessage );
+
+            sentMessagesCount++;
+            /*
+        //trykodends
         try {
             // START SEND
             byte[] msg = msgTextArea.getText().getBytes();
@@ -1037,7 +1438,7 @@ public class Window extends javax.swing.JFrame {
             }
             if(doEncryptSym.isSelected()) {
                 int algorithm = PGPEncryptedData.TRIPLE_DES;
-                if (jRadioButton7.isSelected()) algorithm = PGPEncryptedData.IDEA;
+                if (jIDEAEncryptionRadioButton.isSelected()) algorithm = PGPEncryptedData.IDEA;
                 msg = PGP.encrypt(msg, algorithm, receiverPublicKey);
             }
             
@@ -1065,6 +1466,8 @@ public class Window extends javax.swing.JFrame {
         } catch (Exception ex) {
             Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
             sendWarningLabel.setText("Error");
+        }
+            */
         }
     }//GEN-LAST:event_sendMsgButActionPerformed
 
@@ -1170,6 +1573,56 @@ public class Window extends javax.swing.JFrame {
             {
                 name, email, Utils.keyIdToHexString( key.getKeyID() ), key.getKeyID()
             } );
+        }
+    }
+    
+    private void update_email_from()
+    {
+        fromComboBox.removeAllItems();
+
+        Iterator<PGPSecretKeyRing> iter = sKeyChain.getSecretKeysCollection().getKeyRings();
+        while( iter.hasNext() )
+        {
+            PGPSecretKeyRing keyRing = iter.next();
+            
+            Iterator<PGPSecretKey> keyIter = keyRing.getSecretKeys();
+            PGPSecretKey key = keyIter.next();
+            
+            String nameAndEmail = ( String )key.getUserIDs().next();
+            String[] parsed = nameAndEmail.split( " " );
+            
+            String userEmail = parsed[ parsed.length - 1 ];
+            String userName = "";
+            for( int i = 0; i < parsed.length - 1; i++ )
+            {
+                userName += parsed[ i ];
+                if( i < parsed.length - 2 )
+                {
+                    userName += " ";
+                }
+            }
+            
+            String keyId = Utils.keyIdToHexString( key.getKeyID() );
+            
+            fromComboBox.addItem( userName + " " + userEmail + " | " + keyId );
+        }
+    }
+
+    private void update_email_to()
+    {
+        toComboBox.removeAllItems();
+
+        Iterator<PGPPublicKeyRing> iter = pKeyChain.getPublicKeysCollection().getKeyRings();
+        while( iter.hasNext() )
+        {
+            PGPPublicKeyRing keyRing = iter.next();
+            
+            Iterator<PGPPublicKey> keyIter = keyRing.getPublicKeys();
+            PGPPublicKey key = keyIter.next();
+            
+            String userEmail = new String( ( byte[] )key.getRawUserIDs().next(), StandardCharsets.UTF_8 );
+            String keyId = Utils.keyIdToHexString( key.getKeyID() );
+            toComboBox.addItem( userEmail + " | " + keyId );
         }
     }
     
@@ -1337,32 +1790,11 @@ public class Window extends javax.swing.JFrame {
         
     }//GEN-LAST:event_delete_pub_keyActionPerformed
 
-    private void jButton14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton14ActionPerformed
-        try {
-            Path directory = null;
-            JFileChooser chooser = new JFileChooser(startingFolder);
-            FileNameExtensionFilter filter = new FileNameExtensionFilter("PGP Message Files", "gpg");
-            chooser.setFileFilter(filter);
-            int returnVal = chooser.showOpenDialog(new JPanel());
-            if(returnVal == JFileChooser.APPROVE_OPTION) {
-                directory = Paths.get(chooser.getSelectedFile().getPath());
-                startingFolder = chooser.getSelectedFile().getParentFile().getPath();
-            }
-            
-            String file = Files.readString(directory);
-            try {
-                byte[] ret = PGP.decryptFile(file, sKeyChain, null);
-                recieveTextArea.setText(new String(ret));
-                
-            } catch (IllegalArgumentException ex) {
-                recieveTextArea.setText("Poruka je enkriptovana!");
-                return;
-            }
-            
-        } catch (IOException ex) {
-            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }//GEN-LAST:event_jButton14ActionPerformed
+    private void sendPanelComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_sendPanelComponentShown
+        // TODO add your handling code here:
+        update_email_from();
+        update_email_to();
+    }//GEN-LAST:event_sendPanelComponentShown
 
     /**
      * @param args the command line arguments
@@ -1416,6 +1848,7 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JDialog generatorDialog;
     private javax.swing.JPanel homePanel;
     private javax.swing.JButton importElgamalKeyBut;
+    private javax.swing.JRadioButton j3desEncryptionRadioButton;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton10;
     private javax.swing.JButton jButton11;
@@ -1434,6 +1867,7 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JButton jButton8;
     private javax.swing.JButton jButton9;
     private javax.swing.JPanel jCardPanel;
+    private javax.swing.JRadioButton jIDEAEncryptionRadioButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -1468,12 +1902,11 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JRadioButton jRadioButton3;
     private javax.swing.JRadioButton jRadioButton4;
     private javax.swing.JRadioButton jRadioButton5;
-    private javax.swing.JRadioButton jRadioButton6;
-    private javax.swing.JRadioButton jRadioButton7;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JTextArea jTextArea2;
     private javax.swing.JTabbedPane keyringPanel;
     private javax.swing.JTextArea msgTextArea;
     private javax.swing.JTextField nameField;
@@ -1485,13 +1918,11 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JPanel publicKeyPanel;
     private javax.swing.JTable publicKeyTable;
     private javax.swing.JPanel recievePanel;
-    private javax.swing.JTextArea recieveTextArea;
     private javax.swing.JButton sendMsgBut;
     private javax.swing.JTabbedPane sendPanel;
     private javax.swing.JPasswordField sendPasswordField;
     private javax.swing.JLabel sendWarningLabel;
     private javax.swing.JButton toAddBut;
     private javax.swing.JComboBox<String> toComboBox;
-    private javax.swing.JTextField toTextField;
     // End of variables declaration//GEN-END:variables
 }
