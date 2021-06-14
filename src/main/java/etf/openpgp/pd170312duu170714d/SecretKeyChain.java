@@ -107,6 +107,11 @@ public class SecretKeyChain {
     
     public static void exportSecretKey( PGPSecretKeyRing publicKeyRing, String path ){
         File file = new File(path);
+        try {
+            Utils.touch_file(file);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(SecretKeyChain.class.getName()).log(Level.SEVERE, null, ex);
+        }
         try( ArmoredOutputStream aos = new ArmoredOutputStream( new FileOutputStream( file ) ) )
         {
             publicKeyRing.encode( aos );
@@ -118,7 +123,12 @@ public class SecretKeyChain {
     }
     
     public void saveKeysToFile(File file) {
-        if(file == null)new File("../secret_ring_file.asc");
+        if(file == null)file = new File("../secret_ring_file.asc");
+        try {
+            Utils.touch_file(file);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(SecretKeyChain.class.getName()).log(Level.SEVERE, null, ex);
+        }
         try( ArmoredOutputStream aos = new ArmoredOutputStream( new FileOutputStream( file) ) )
         {
             secretKeyRingCollection.encode( aos );

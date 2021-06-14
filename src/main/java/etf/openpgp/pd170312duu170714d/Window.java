@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
@@ -24,6 +25,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPEncryptedData;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPKeyRingGenerator;
+import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPPublicKeyRing;
 import org.bouncycastle.openpgp.PGPSecretKey;
 import org.bouncycastle.openpgp.PGPSecretKeyRing;
@@ -148,7 +150,6 @@ public class Window extends javax.swing.JFrame {
 
         generatorDialog.setTitle("ZP projekat OpenPGP");
         generatorDialog.setMinimumSize(new java.awt.Dimension(470, 290));
-        generatorDialog.setPreferredSize(new java.awt.Dimension(470, 290));
         generatorDialog.setResizable(false);
 
         jPanel1.setMinimumSize(new java.awt.Dimension(470, 225));
@@ -200,7 +201,7 @@ public class Window extends javax.swing.JFrame {
         jButton6.setText("Generiši");
         jButton6.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton6ActionPerformed(evt);
+                generate_private_keysActionPerformed(evt);
             }
         });
 
@@ -775,10 +776,31 @@ public class Window extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Ime", "E-Mail", "ID Ključa"
+                "Ime", "E-Mail", "ID Ključa", "null"
             }
-        ));
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.Long.class, java.lang.Object.class
+            };
+            boolean[] canEdit = new boolean [] {
+                true, true, true, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane3.setViewportView(publicKeyTable);
+        if (publicKeyTable.getColumnModel().getColumnCount() > 0) {
+            publicKeyTable.getColumnModel().getColumn(2).setResizable(false);
+            publicKeyTable.getColumnModel().getColumn(3).setMinWidth(0);
+            publicKeyTable.getColumnModel().getColumn(3).setPreferredWidth(0);
+            publicKeyTable.getColumnModel().getColumn(3).setMaxWidth(0);
+        }
 
         publicKeyImportBut.setText("Uvezi");
         publicKeyImportBut.addActionListener(new java.awt.event.ActionListener() {
@@ -847,10 +869,30 @@ public class Window extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Ime", "E-Mail", "ID Ključa"
+                "Ime", "E-Mail", "ID Ključa", "null"
             }
-        ));
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.Long.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                true, true, true, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        privateKeyTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane4.setViewportView(privateKeyTable);
+        if (privateKeyTable.getColumnModel().getColumnCount() > 0) {
+            privateKeyTable.getColumnModel().getColumn(3).setPreferredWidth(0);
+            privateKeyTable.getColumnModel().getColumn(3).setMaxWidth(0);
+        }
 
         privateKeyImportBut.setText("Uvezi");
         privateKeyImportBut.addActionListener(new java.awt.event.ActionListener() {
@@ -862,7 +904,7 @@ public class Window extends javax.swing.JFrame {
         jButton11.setText("Izvezi");
         jButton11.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton11ActionPerformed(evt);
+                export_private_keyActionPerformed(evt);
             }
         });
 
@@ -887,7 +929,7 @@ public class Window extends javax.swing.JFrame {
             .addGroup(privateKeyPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(privateKeyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, privateKeyPanelLayout.createSequentialGroup()
+                    .addGroup(privateKeyPanelLayout.createSequentialGroup()
                         .addComponent(privateKeyImportBut)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton11)
@@ -895,17 +937,17 @@ public class Window extends javax.swing.JFrame {
                         .addComponent(jButton12)
                         .addGap(18, 18, 18)
                         .addComponent(jButton7)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 278, Short.MAX_VALUE)
                         .addComponent(jButton17))
-                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 706, Short.MAX_VALUE))
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 686, Short.MAX_VALUE))
                 .addContainerGap())
         );
         privateKeyPanelLayout.setVerticalGroup(
             privateKeyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, privateKeyPanelLayout.createSequentialGroup()
-                .addGap(14, 14, 14)
+                .addContainerGap()
                 .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 346, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 14, Short.MAX_VALUE)
                 .addGroup(privateKeyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton17)
                     .addComponent(privateKeyImportBut)
@@ -1055,26 +1097,113 @@ public class Window extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton4ActionPerformed
 
-    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-        //        try {
-            int keySize=1024;
-            if (jRadioButton4.isSelected()) keySize=2048;
-            else if (jRadioButton5.isSelected()) keySize=4096;
-            //ElGamal.generate_keypair(keySize);
+    private void generate_private_keysActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generate_private_keysActionPerformed
 
-            elgamalKeyStatusLabel.setForeground(new Color(25,190,83));
-            elgamalKeyStatusLabel.setText("Ključ uspešno generisan!");
-            //        } catch (NoSuchAlgorithmException ex) {
-            //            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
-            //            elgamalKeyStatusLabel.setForeground(new Color(255,140,26));
-            //            elgamalKeyStatusLabel.setText("Greška pri generisanju ključa! Algoritam nije pronađen!");
-            //        } catch (NoSuchProviderException ex) {
-            //            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
-            //            elgamalKeyStatusLabel.setForeground(new Color(255,140,26));
-            //            elgamalKeyStatusLabel.setText("Greška pri generisanju ključa! BoucyCastle nije pronađen!");
-            //        }
-    }//GEN-LAST:event_jButton6ActionPerformed
+        int dsa_size = 0;
+        int eg_size = 0;
+        if (jRadioButton1.isSelected()) dsa_size=1024;
+        else if (jRadioButton2.isSelected()) dsa_size=2048;
+        
+        if (jRadioButton3.isSelected()) eg_size=1024;
+        else if (jRadioButton4.isSelected()) eg_size=2048;
+        else if (jRadioButton5.isSelected()) eg_size=4096;
+        
+        String ime = nameField.getText();
+        String email = emailField.getText();
+        String password = passwordField.getText();
+        
 
+        if( ime.equals("") || email.equals("") || password.equals("") )
+        {
+            return;
+        }
+        
+        KeyRingGen krg = new KeyRingGen(dsa_size, eg_size, ime, email, password);
+        sKeyChain.addSecretKey(krg.get_keyring_generator());
+        pKeyChain.addPublicKey(krg.get_keyring_generator());
+        sKeyChain.saveKeysToFile(null);
+        pKeyChain.saveKeysToFile(null);
+
+        update_private_key_table();
+        update_public_key_table();
+        elgamalKeyStatusLabel.setForeground(new Color(25,190,83));
+        elgamalKeyStatusLabel.setText("Ključ uspešno generisan!");
+    }//GEN-LAST:event_generate_private_keysActionPerformed
+
+    private void update_private_key_table()
+    {
+        DefaultTableModel model = ( DefaultTableModel )privateKeyTable.getModel();
+        int rowCount = model.getRowCount();
+        //Remove rows one by one from the end of the table
+        for( int i = rowCount - 1; i >= 0; i-- )
+        {
+            model.removeRow( i );
+        }
+        Iterator<PGPSecretKeyRing> iter = sKeyChain.getSecretKeysCollection().getKeyRings();
+        while( iter.hasNext() )
+        {
+            PGPSecretKeyRing keyRing = iter.next();
+            
+            Iterator<PGPSecretKey> keyIter = keyRing.getSecretKeys();
+            PGPSecretKey key = keyIter.next();
+            
+            String nameAndEmail = ( String )key.getUserIDs().next();
+            String[] parsed = nameAndEmail.split( " " );
+            String email = parsed[ parsed.length - 1 ];
+            String name = "";
+            for( int i = 0; i < parsed.length - 1; i++ )
+            {
+                name += parsed[ i ];
+                if( i < parsed.length - 2 )
+                {
+                    name += " ";
+                }
+            }
+            
+            model.addRow( new Object[]
+            {
+                name, email, Utils.keyIdToHexString( key.getKeyID() ), key.getKeyID()
+            } );
+        }
+    }
+    
+    private void update_public_key_table()
+    {
+        DefaultTableModel model = ( DefaultTableModel )publicKeyTable.getModel();
+        int rowCount = model.getRowCount();
+        //Remove rows one by one from the end of the table
+        for( int i = rowCount - 1; i >= 0; i-- )
+        {
+            model.removeRow( i );
+        }
+        Iterator<PGPPublicKeyRing> iter = pKeyChain.getPublicKeysCollection().getKeyRings();
+        while( iter.hasNext() )
+        {
+            PGPPublicKeyRing keyRing = iter.next();
+            
+            Iterator<PGPPublicKey> keyIter = keyRing.getPublicKeys();
+            PGPPublicKey key = keyIter.next();
+            
+            String nameAndEmail = ( String )key.getUserIDs().next();
+            String[] parsed = nameAndEmail.split( " " );
+            String email = parsed[ parsed.length - 1 ];
+            String name = "";
+            for( int i = 0; i < parsed.length - 1; i++ )
+            {
+                name += parsed[ i ];
+                if( i < parsed.length - 2 )
+                {
+                    name += " ";
+                }
+            }
+            
+            model.addRow( new Object[]
+            {
+                name, email, Utils.keyIdToHexString( key.getKeyID() ), key.getKeyID()
+            } );
+        }
+    }
+    
     private void jButton17ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton17ActionPerformed
         CardLayout card = (CardLayout)jCardPanel.getLayout();
         card.show(jCardPanel, "homeCard");
@@ -1093,26 +1222,6 @@ public class Window extends javax.swing.JFrame {
 
     private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
         generatorDialog.setVisible(true);
-        //generisanje kljuceva
-        //potrebni text-fieldovi za ime, email, sifru i biranje dsa i elgamal velicina
-        
-        String ime = "";
-        String email = "";
-        String password = "";
-        
-        int dsa_size = 0;
-        int eg_size = 0;
-        
-        String userID = ime + " <" + email + ">";
-        
-        KeyRingGen krg = new KeyRingGen(dsa_size, eg_size, ime, email, password);
-        sKeyChain.addSecretKey(krg.get_keyring_generator());
-        pKeyChain.addPublicKey(krg.get_keyring_generator());
-        sKeyChain.saveKeysToFile(null);
-        pKeyChain.saveKeysToFile(null);
-
-        //postaviti sva text polja na default i ispisati uspesnost
-        //dodati nove kljuceve na listu korisnikovih kljuceva
     }//GEN-LAST:event_jButton12ActionPerformed
 
     private void privateKeyImportButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_privateKeyImportButActionPerformed
@@ -1132,7 +1241,7 @@ public class Window extends javax.swing.JFrame {
         
         sKeyChain.importSecretKey( directory.toString() );
         sKeyChain.saveKeysToFile(null);
-        //update tabele
+        update_private_key_table();
         
     }//GEN-LAST:event_privateKeyImportButActionPerformed
 
@@ -1153,56 +1262,72 @@ public class Window extends javax.swing.JFrame {
         pKeyChain.importPublicKey(directory.toString());
         pKeyChain.saveKeysToFile(null);
         
-        //apdejt tabele
+        update_public_key_table();
     }//GEN-LAST:event_publicKeyImportButActionPerformed
 
-    private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
+    private void export_private_keyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_export_private_keyActionPerformed
         // TODO add your handling code here:
         //export privatnog kljuca
         
-        //treba mi keyID od selektovanog kljuca i putanja zeljene destinacije 
-        long keyID = 0;
-        String path = null;
-        PGPSecretKeyRing export_keypair = sKeyChain.getSecretKeyRing( keyID );
-        sKeyChain.exportSecretKey( export_keypair, path );
-    }//GEN-LAST:event_jButton11ActionPerformed
-
-    private void delete_private_keyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delete_private_keyActionPerformed
-        // TODO add your handling code here:
+        String path = Utils.getUserSelectedFilePath( Utils.SAVE_DIALOG, Utils.PGP_KEY_FILE );
+        System.out.println(path);
         
         //dohvati keyID
-        long keyID = 0;
+        int rowIdx = privateKeyTable.getSelectedRow();
+
+        if( rowIdx < 0 )
+            return;
+
+        long keyID = ( long )privateKeyTable.getValueAt( rowIdx, 3 );
+        
+        PGPSecretKeyRing export_keypair = sKeyChain.getSecretKeyRing( keyID );
+        SecretKeyChain.exportSecretKey( export_keypair, path );
+    }//GEN-LAST:event_export_private_keyActionPerformed
+
+    private void delete_private_keyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delete_private_keyActionPerformed
+        int rowIdx = privateKeyTable.getSelectedRow();
+
+        if( rowIdx < 0 )
+            return;
+
+        long keyID = ( long )privateKeyTable.getValueAt( rowIdx, 3 );
         PGPSecretKeyRing delete = sKeyChain.getSecretKeyRing( keyID );
         sKeyChain.removeSecretKey(delete);
         sKeyChain.saveKeysToFile(null);
         
-        //apdejt tabele
-        
+        update_private_key_table();
     }//GEN-LAST:event_delete_private_keyActionPerformed
 
     private void export_pub_keyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_export_pub_keyActionPerformed
         // TODO add your handling code here:
+        String path = Utils.getUserSelectedFilePath( Utils.SAVE_DIALOG, Utils.PGP_KEY_FILE );
+        System.out.println(path);
         
-        //dohvati putanju i keyid
-        String path = null;
-        long keyID = 0;
+        //dohvati keyID
+        int rowIdx = publicKeyTable.getSelectedRow();
+
+        if( rowIdx < 0 )
+            return;
+
+        long keyID = ( long )publicKeyTable.getValueAt( rowIdx, 3 );
         
-        
-        PGPPublicKeyRing export = pKeyChain.getPublicKeyRing( keyID );
-        pKeyChain.exportPublicKey(export, path);
-        pKeyChain.saveKeysToFile(null);
-        
+        PGPPublicKeyRing export_keypair = pKeyChain.getPublicKeyRing( keyID );
+        pKeyChain.exportPublicKey( export_keypair, path );
     }//GEN-LAST:event_export_pub_keyActionPerformed
 
     private void delete_pub_keyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delete_pub_keyActionPerformed
         // TODO add your handling code here:
-        //dohvati keyID
-        long keyID = 0;
+        int rowIdx = publicKeyTable.getSelectedRow();
+
+        if( rowIdx < 0 )
+            return;
+
+        long keyID = ( long )publicKeyTable.getValueAt( rowIdx, 3 );
         PGPPublicKeyRing delete = pKeyChain.getPublicKeyRing( keyID );
         pKeyChain.removePublicKey(delete);
         pKeyChain.saveKeysToFile(null);
         
-        //apdejt tabele
+        update_public_key_table();
         
     }//GEN-LAST:event_delete_pub_keyActionPerformed
 
@@ -1241,51 +1366,6 @@ public class Window extends javax.swing.JFrame {
         });
     }
     
-    private void updatePrivateKeyTable()
-    {
-        try
-        {
-            DefaultTableModel model = ( DefaultTableModel )privateKeyTable.getModel();
-            int rowCount = model.getRowCount();
-            //Remove rows one by one from the end of the table
-            for( int i = rowCount - 1; i >= 0; i-- )
-            {
-                model.removeRow( i );
-            }
-
-            Iterator<PGPSecretKeyRing> iter = sKeyChain.getSecretKeysCollection().getKeyRings();
-            while( iter.hasNext() )
-            {
-                PGPSecretKeyRing keyRing = iter.next();
-
-                Iterator<PGPSecretKey> keyIter = keyRing.getSecretKeys();
-                PGPSecretKey key = keyIter.next();
-
-                String nameAndEmail = ( String )key.getUserIDs().next();
-                String[] parsed = nameAndEmail.split( " " );
-                String email = parsed[ parsed.length - 1 ];
-                String name = "";
-                for( int i = 0; i < parsed.length - 1; i++ )
-                {
-                    name += parsed[ i ];
-                    if( i < parsed.length - 2 )
-                    {
-                        name += " ";
-                    }
-                }
-
-                model.addRow( new Object[]
-                {
-                    name, email, PGPKeys.keyIdToHexString( key.getKeyID() ), key.getKeyID()
-                } );
-            }
-        }
-        catch( IOException | PGPException ex )
-        {
-            Logger.getLogger( App.class.getName() ).log( Level.SEVERE, "Could not populate <private key ring table>", ex );
-        }
-    }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox doEncriptAsym;
     private javax.swing.JCheckBox doEncryptSym;

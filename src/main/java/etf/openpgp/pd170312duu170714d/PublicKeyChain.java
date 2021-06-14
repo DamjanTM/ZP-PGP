@@ -97,15 +97,20 @@ public class PublicKeyChain {
      
      
      public void saveKeysToFile(File file) {
-        if(file == null)file = new File("../public_ring_file.asc");
-        try( ArmoredOutputStream aos = new ArmoredOutputStream( new FileOutputStream( file ) ) )
-        {
-            publicKeyRingCollection.encode( aos );
+        try{
+            if(file == null)file = new File("../public_ring_file.asc");
+            Utils.touch_file(file);
+            try( ArmoredOutputStream aos = new ArmoredOutputStream( new FileOutputStream( file ) ) )
+            {
+                publicKeyRingCollection.encode( aos );
+            } catch (FileNotFoundException ex) {
+                System.out.println("err1");
+                Logger.getLogger(PublicKeyChain.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                System.out.println("err2");
+                Logger.getLogger(PublicKeyChain.class.getName()).log(Level.SEVERE, null, ex);
+            }
         } catch (FileNotFoundException ex) {
-            System.out.println("err1");
-            Logger.getLogger(PublicKeyChain.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            System.out.println("err2");
             Logger.getLogger(PublicKeyChain.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
