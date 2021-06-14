@@ -11,18 +11,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.Security;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPEncryptedData;
+import org.bouncycastle.openpgp.PGPException;
+import org.bouncycastle.openpgp.PGPSecretKey;
+import org.bouncycastle.openpgp.PGPSecretKeyRing;
 
 /**
  *
@@ -31,9 +32,9 @@ import org.bouncycastle.openpgp.PGPEncryptedData;
 public class Window extends javax.swing.JFrame {
 
     private String startingFolder = System.getProperty("user.home")+"\\Desktop";
-    /**
-     * Creates new form Window
-     */
+    private SecretKeyChain sKeyChain = new SecretKeyChain();
+    private PublicKeyChain pKeyChain = new PublicKeyChain();
+    
     public Window() {
         initComponents();
         Security.addProvider(new BouncyCastleProvider());
@@ -85,11 +86,13 @@ public class Window extends javax.swing.JFrame {
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
         jLabel25 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
-        jTextField1 = new javax.swing.JTextField();
-        jComboBox2 = new javax.swing.JComboBox<>();
-        jButton7 = new javax.swing.JButton();
+        fromComboBox = new javax.swing.JComboBox<>();
+        toTextField = new javax.swing.JTextField();
+        toComboBox = new javax.swing.JComboBox<>();
+        toAddBut = new javax.swing.JButton();
         jLabel26 = new javax.swing.JLabel();
+        sendPasswordField = new javax.swing.JPasswordField();
+        jLabel3 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         doSign = new javax.swing.JCheckBox();
@@ -113,17 +116,34 @@ public class Window extends javax.swing.JFrame {
         doSerialize = new javax.swing.JCheckBox();
         jLabel19 = new javax.swing.JLabel();
         sendMsgBut = new javax.swing.JButton();
+        jButton13 = new javax.swing.JButton();
+        sendWarningLabel = new javax.swing.JLabel();
         recievePanel = new javax.swing.JPanel();
         jLabel21 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextArea2 = new javax.swing.JTextArea();
         jButton14 = new javax.swing.JButton();
         jButton15 = new javax.swing.JButton();
-        keyringPanel = new javax.swing.JPanel();
+        jPasswordField1 = new javax.swing.JPasswordField();
+        jButton10 = new javax.swing.JButton();
+        keyringPanel = new javax.swing.JTabbedPane();
+        publicKeyPanel = new javax.swing.JPanel();
         jButton16 = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        publicKeyTable = new javax.swing.JTable();
+        publicKeyImportBut = new javax.swing.JButton();
+        jButton9 = new javax.swing.JButton();
+        jButton8 = new javax.swing.JButton();
+        privateKeyPanel = new javax.swing.JPanel();
+        jButton17 = new javax.swing.JButton();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        privateKeyTable = new javax.swing.JTable();
+        privateKeyImportBut = new javax.swing.JButton();
+        jButton11 = new javax.swing.JButton();
+        jButton12 = new javax.swing.JButton();
+        jButton7 = new javax.swing.JButton();
 
+        generatorDialog.setTitle("ZP projekat OpenPGP");
         generatorDialog.setMinimumSize(new java.awt.Dimension(470, 290));
         generatorDialog.setPreferredSize(new java.awt.Dimension(470, 290));
         generatorDialog.setResizable(false);
@@ -339,7 +359,7 @@ public class Window extends javax.swing.JFrame {
                     .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(240, Short.MAX_VALUE))
+                .addContainerGap(248, Short.MAX_VALUE))
         );
         homePanelLayout.setVerticalGroup(
             homePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -351,7 +371,7 @@ public class Window extends javax.swing.JFrame {
                 .addComponent(jButton2)
                 .addGap(12, 12, 12)
                 .addComponent(jButton3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 120, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 150, Short.MAX_VALUE)
                 .addComponent(jLabel20)
                 .addContainerGap())
         );
@@ -381,15 +401,17 @@ public class Window extends javax.swing.JFrame {
 
         jLabel25.setText("Od:");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        toTextField.setEditable(false);
 
-        jTextField1.setEditable(false);
+        toComboBox.setSelectedItem(publicKeyTable);
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        jButton7.setText("Dodaj");
+        toAddBut.setText("Dodaj");
 
         jLabel26.setText("Ka:");
+
+        sendPasswordField.setText("jPasswordField1");
+
+        jLabel3.setText("Šifra:");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -398,7 +420,7 @@ public class Window extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 698, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 706, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                         .addComponent(jButton4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -413,13 +435,16 @@ public class Window extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addComponent(jTextField1))
+                                .addComponent(fromComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel3))
+                            .addComponent(toTextField))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(sendPasswordField)
+                            .addComponent(toComboBox, 0, 186, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton7)))
+                        .addComponent(toAddBut)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -429,16 +454,18 @@ public class Window extends javax.swing.JFrame {
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel25))
+                    .addComponent(fromComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel25)
+                    .addComponent(sendPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton7)
+                    .addComponent(toTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(toComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(toAddBut)
                     .addComponent(jLabel26))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 242, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton5)
@@ -536,6 +563,15 @@ public class Window extends javax.swing.JFrame {
             }
         });
 
+        jButton13.setText("Odustani");
+        jButton13.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton13ActionPerformed(evt);
+            }
+        });
+
+        sendWarningLabel.setForeground(new java.awt.Color(187, 87, 87));
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -548,53 +584,53 @@ public class Window extends javax.swing.JFrame {
                             .addGroup(jPanel3Layout.createSequentialGroup()
                                 .addComponent(jLabel4)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(doSign))
-                            .addComponent(jLabel15)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addGap(6, 6, 6)
-                                .addComponent(dsaKeyStatusLabel)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 121, Short.MAX_VALUE)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(doSign)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(dsaKeyStatusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel15, javax.swing.GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE))
+                        .addGap(12, 12, 12)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(jPanel3Layout.createSequentialGroup()
                                 .addComponent(jLabel7)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(doEncriptAsym))
-                            .addComponent(jLabel16)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addGap(6, 6, 6)
-                                .addComponent(elgamalKeyStatusLabel))))
+                            .addComponent(jLabel16, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(elgamalKeyStatusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addComponent(jButton13)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(sendWarningLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(sendMsgBut, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(jLabel13)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(doSerialize))
                             .addComponent(jLabel19)
                             .addGroup(jPanel3Layout.createSequentialGroup()
                                 .addComponent(jLabel12)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(doEncryptSym))
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(jRadioButton6)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jRadioButton7))
                             .addComponent(jLabel18)
                             .addGroup(jPanel3Layout.createSequentialGroup()
                                 .addComponent(jLabel11)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(doZip))
-                            .addComponent(jLabel17))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(sendMsgBut, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                                .addComponent(importElgamalKeyBut)
+                            .addComponent(jLabel17)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jLabel13)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(genElgamalKeyBut)
-                                .addGap(226, 226, 226)))))
+                                .addComponent(doSerialize))
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jRadioButton6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jRadioButton7)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(importElgamalKeyBut)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(genElgamalKeyBut)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -643,8 +679,12 @@ public class Window extends javax.swing.JFrame {
                     .addComponent(jLabel13))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel19)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(sendMsgBut)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
+                .addComponent(sendWarningLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(sendMsgBut)
+                    .addComponent(jButton13))
                 .addContainerGap())
         );
 
@@ -669,16 +709,25 @@ public class Window extends javax.swing.JFrame {
             }
         });
 
+        jPasswordField1.setText("jPasswordField1");
+
+        jButton10.setText("Dešifruj");
+
         javax.swing.GroupLayout recievePanelLayout = new javax.swing.GroupLayout(recievePanel);
         recievePanel.setLayout(recievePanelLayout);
         recievePanelLayout.setHorizontalGroup(
             recievePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 712, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, recievePanelLayout.createSequentialGroup()
+                .addContainerGap(462, Short.MAX_VALUE)
+                .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton10)
+                .addContainerGap())
             .addGroup(recievePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(recievePanelLayout.createSequentialGroup()
                     .addGap(7, 7, 7)
                     .addGroup(recievePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 698, Short.MAX_VALUE)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 706, Short.MAX_VALUE)
                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, recievePanelLayout.createSequentialGroup()
                             .addComponent(jButton14)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -690,13 +739,18 @@ public class Window extends javax.swing.JFrame {
         );
         recievePanelLayout.setVerticalGroup(
             recievePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(recievePanelLayout.createSequentialGroup()
+                .addGap(42, 42, 42)
+                .addGroup(recievePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton10))
+                .addContainerGap(356, Short.MAX_VALUE))
             .addGroup(recievePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(recievePanelLayout.createSequentialGroup()
                     .addGap(19, 19, 19)
                     .addComponent(jLabel21)
                     .addGap(29, 29, 29)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                     .addGroup(recievePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jButton15)
@@ -713,41 +767,132 @@ public class Window extends javax.swing.JFrame {
             }
         });
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        publicKeyTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Ime", "E-Mail", "ID Ključa"
             }
         ));
-        jScrollPane3.setViewportView(jTable1);
+        jScrollPane3.setViewportView(publicKeyTable);
 
-        javax.swing.GroupLayout keyringPanelLayout = new javax.swing.GroupLayout(keyringPanel);
-        keyringPanel.setLayout(keyringPanelLayout);
-        keyringPanelLayout.setHorizontalGroup(
-            keyringPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(keyringPanelLayout.createSequentialGroup()
+        publicKeyImportBut.setText("Uvezi");
+        publicKeyImportBut.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                publicKeyImportButActionPerformed(evt);
+            }
+        });
+
+        jButton9.setText("Izvezi");
+
+        jButton8.setText("Izbriši");
+
+        javax.swing.GroupLayout publicKeyPanelLayout = new javax.swing.GroupLayout(publicKeyPanel);
+        publicKeyPanel.setLayout(publicKeyPanelLayout);
+        publicKeyPanelLayout.setHorizontalGroup(
+            publicKeyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(publicKeyPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(keyringPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, keyringPanelLayout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
+                .addGroup(publicKeyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, publicKeyPanelLayout.createSequentialGroup()
+                        .addComponent(publicKeyImportBut)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton9)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton8)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jButton16))
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 700, Short.MAX_VALUE))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 706, Short.MAX_VALUE))
                 .addContainerGap())
         );
-        keyringPanelLayout.setVerticalGroup(
-            keyringPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, keyringPanelLayout.createSequentialGroup()
+        publicKeyPanelLayout.setVerticalGroup(
+            publicKeyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, publicKeyPanelLayout.createSequentialGroup()
                 .addGap(14, 14, 14)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 346, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton16)
+                .addGroup(publicKeyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton16)
+                    .addComponent(publicKeyImportBut)
+                    .addComponent(jButton9)
+                    .addComponent(jButton8))
                 .addContainerGap())
         );
+
+        keyringPanel.addTab("Javni Kljucevi", publicKeyPanel);
+
+        jButton17.setText("Nazad");
+        jButton17.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton17ActionPerformed(evt);
+            }
+        });
+
+        privateKeyTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Ime", "E-Mail", "ID Ključa"
+            }
+        ));
+        jScrollPane4.setViewportView(privateKeyTable);
+
+        privateKeyImportBut.setText("Uvezi");
+        privateKeyImportBut.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                privateKeyImportButActionPerformed(evt);
+            }
+        });
+
+        jButton11.setText("Izvezi");
+
+        jButton12.setText("Generiši Ključeve");
+        jButton12.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton12ActionPerformed(evt);
+            }
+        });
+
+        jButton7.setText("Izbriši");
+
+        javax.swing.GroupLayout privateKeyPanelLayout = new javax.swing.GroupLayout(privateKeyPanel);
+        privateKeyPanel.setLayout(privateKeyPanelLayout);
+        privateKeyPanelLayout.setHorizontalGroup(
+            privateKeyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(privateKeyPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(privateKeyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, privateKeyPanelLayout.createSequentialGroup()
+                        .addComponent(privateKeyImportBut)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton11)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton12)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jButton17))
+                    .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 706, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        privateKeyPanelLayout.setVerticalGroup(
+            privateKeyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, privateKeyPanelLayout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 346, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(privateKeyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton17)
+                    .addComponent(privateKeyImportBut)
+                    .addComponent(jButton11)
+                    .addComponent(jButton12)
+                    .addComponent(jButton7))
+                .addContainerGap())
+        );
+
+        keyringPanel.addTab("Privatni Kljucevi", privateKeyPanel);
 
         jCardPanel.add(keyringPanel, "keyringCard");
 
@@ -757,7 +902,7 @@ public class Window extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(6, 6, 6)
-                .addComponent(jCardPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 712, Short.MAX_VALUE)
+                .addComponent(jCardPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 700, Short.MAX_VALUE)
                 .addGap(6, 6, 6))
         );
         layout.setVerticalGroup(
@@ -794,6 +939,8 @@ public class Window extends javax.swing.JFrame {
     private void jButton16ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton16ActionPerformed
         CardLayout card = (CardLayout)jCardPanel.getLayout();
         card.show(jCardPanel, "homeCard");
+        
+        keyringPanel.setSelectedIndex(0);
     }//GEN-LAST:event_jButton16ActionPerformed
 
     private void nameFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nameFieldActionPerformed
@@ -801,12 +948,18 @@ public class Window extends javax.swing.JFrame {
     }//GEN-LAST:event_nameFieldActionPerformed
 
     private void sendMsgButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendMsgButActionPerformed
+        // CHECK IF PASSWORD IS OK <---------------------------------------------------
         try {
             // START SEND
             byte[] msg = msgTextArea.getText().getBytes();
             msg = PGP.convertToPGP(msg);
             if (doSign.isSelected()) {
-                msg = PGP.sign(msg, senderSecretKey_, senderPassphrase_);
+                char[]  password = sendPasswordField.getPassword();
+                if (SecretKeyChain.isValidPassphrase(secretKeyring, WIDTH, password))
+                    msg = PGP.sign(msg, senderSecretKey_, password);
+                else {
+                    sendWarningLabel.setText("Wrong password!");
+                }
             }
             if(doZip.isSelected()) {
                 msg = PGP.zip(msg);
@@ -816,14 +969,31 @@ public class Window extends javax.swing.JFrame {
                 if (jRadioButton7.isSelected()) algorithm = PGPEncryptedData.IDEA;
                 msg = PGP.encrypt(msg, algorithm, receiverPublicKey);
             }
+            
+            try {
+                Path directory = null;
+                JFileChooser chooser = new JFileChooser(startingFolder);
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("GPG message files", "gpg");
+                chooser.setFileFilter(filter);
+                int returnVal = chooser.showOpenDialog(new JPanel());
+                if(returnVal == JFileChooser.APPROVE_OPTION) {
+                    directory = Paths.get(chooser.getSelectedFile().getPath());
+                    startingFolder = chooser.getSelectedFile().getParentFile().getPath();
+                }
 
+                Files.write( directory, msg );
+            } catch (IOException ex) {
+                Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+            }
             // END SEND
             CardLayout card = (CardLayout)jCardPanel.getLayout();
             card.show(jCardPanel, "homeCard");
 
             sendPanel.setSelectedIndex(0);
+            sendWarningLabel.setText("");
         } catch (Exception ex) {
             Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+            sendWarningLabel.setText("Error");
         }
     }//GEN-LAST:event_sendMsgButActionPerformed
 
@@ -863,7 +1033,7 @@ public class Window extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-          //        try {
+        //        try {
             int keySize=1024;
             if (jRadioButton4.isSelected()) keySize=2048;
             else if (jRadioButton5.isSelected()) keySize=4096;
@@ -881,6 +1051,59 @@ public class Window extends javax.swing.JFrame {
             //            elgamalKeyStatusLabel.setText("Greška pri generisanju ključa! BoucyCastle nije pronađen!");
             //        }
     }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jButton17ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton17ActionPerformed
+        CardLayout card = (CardLayout)jCardPanel.getLayout();
+        card.show(jCardPanel, "homeCard");
+
+        keyringPanel.setSelectedIndex(0);
+        sendWarningLabel.setText("");
+    }//GEN-LAST:event_jButton17ActionPerformed
+
+    private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
+        CardLayout card = (CardLayout)jCardPanel.getLayout();
+        card.show(jCardPanel, "homeCard");
+
+        sendPanel.setSelectedIndex(0);
+        sendWarningLabel.setText("");
+    }//GEN-LAST:event_jButton13ActionPerformed
+
+    private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
+        generatorDialog.setVisible(true);
+    }//GEN-LAST:event_jButton12ActionPerformed
+
+    private void privateKeyImportButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_privateKeyImportButActionPerformed
+        // Import private keypair
+        
+        Path directory = null;
+        JFileChooser chooser = new JFileChooser(startingFolder);
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Keypair Files", "asc");
+        chooser.setFileFilter(filter);
+        int returnVal = chooser.showOpenDialog(new JPanel());
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            directory = Paths.get(chooser.getSelectedFile().getPath());
+            startingFolder = chooser.getSelectedFile().getParentFile().getPath();
+        }
+
+        // TO-DO Ovde treba importovati selektovani fajl (directory)
+        
+    }//GEN-LAST:event_privateKeyImportButActionPerformed
+
+    private void publicKeyImportButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_publicKeyImportButActionPerformed
+        // Import javnog keypair
+        
+        Path directory = null;
+        JFileChooser chooser = new JFileChooser(startingFolder);
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Keypair Files", "asc");
+        chooser.setFileFilter(filter);
+        int returnVal = chooser.showOpenDialog(new JPanel());
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            directory = Paths.get(chooser.getSelectedFile().getPath());
+            startingFolder = chooser.getSelectedFile().getParentFile().getPath();
+        }
+
+        // TO-DO Ovde treba importovati selektovani fajl (directory)
+    }//GEN-LAST:event_publicKeyImportButActionPerformed
 
     /**
      * @param args the command line arguments
@@ -916,6 +1139,51 @@ public class Window extends javax.swing.JFrame {
             }
         });
     }
+    
+    private void updatePrivateKeyTable()
+    {
+        try
+        {
+            DefaultTableModel model = ( DefaultTableModel )privateKeyTable.getModel();
+            int rowCount = model.getRowCount();
+            //Remove rows one by one from the end of the table
+            for( int i = rowCount - 1; i >= 0; i-- )
+            {
+                model.removeRow( i );
+            }
+
+            Iterator<PGPSecretKeyRing> iter = sKeyChain.getSecretKeysCollection().getKeyRings();
+            while( iter.hasNext() )
+            {
+                PGPSecretKeyRing keyRing = iter.next();
+
+                Iterator<PGPSecretKey> keyIter = keyRing.getSecretKeys();
+                PGPSecretKey key = keyIter.next();
+
+                String nameAndEmail = ( String )key.getUserIDs().next();
+                String[] parsed = nameAndEmail.split( " " );
+                String email = parsed[ parsed.length - 1 ];
+                String name = "";
+                for( int i = 0; i < parsed.length - 1; i++ )
+                {
+                    name += parsed[ i ];
+                    if( i < parsed.length - 2 )
+                    {
+                        name += " ";
+                    }
+                }
+
+                model.addRow( new Object[]
+                {
+                    name, email, PGPKeys.keyIdToHexString( key.getKeyID() ), key.getKeyID()
+                } );
+            }
+        }
+        catch( IOException | PGPException ex )
+        {
+            Logger.getLogger( App.class.getName() ).log( Level.SEVERE, "Could not populate <private key ring table>", ex );
+        }
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox doEncriptAsym;
@@ -929,23 +1197,29 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JLabel elgamalKeyStatusLabel;
     private javax.swing.JTextField emailField;
     private javax.swing.ButtonGroup encriptionAlgBG;
+    private javax.swing.JComboBox<String> fromComboBox;
     private javax.swing.JButton genElgamalKeyBut;
     private javax.swing.JDialog generatorDialog;
     private javax.swing.JPanel homePanel;
     private javax.swing.JButton importElgamalKeyBut;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton10;
+    private javax.swing.JButton jButton11;
+    private javax.swing.JButton jButton12;
+    private javax.swing.JButton jButton13;
     private javax.swing.JButton jButton14;
     private javax.swing.JButton jButton15;
     private javax.swing.JButton jButton16;
+    private javax.swing.JButton jButton17;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
+    private javax.swing.JButton jButton8;
+    private javax.swing.JButton jButton9;
     private javax.swing.JPanel jCardPanel;
-    private javax.swing.JComboBox<String> jComboBox1;
-    private javax.swing.JComboBox<String> jComboBox2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -964,6 +1238,7 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel26;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
@@ -973,6 +1248,7 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JPasswordField jPasswordField1;
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JRadioButton jRadioButton2;
     private javax.swing.JRadioButton jRadioButton3;
@@ -983,15 +1259,25 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JTable jTable1;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JTextArea jTextArea2;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JPanel keyringPanel;
+    private javax.swing.JTabbedPane keyringPanel;
     private javax.swing.JTextArea msgTextArea;
     private javax.swing.JTextField nameField;
     private javax.swing.JPasswordField passwordField;
+    private javax.swing.JButton privateKeyImportBut;
+    private javax.swing.JPanel privateKeyPanel;
+    private javax.swing.JTable privateKeyTable;
+    private javax.swing.JButton publicKeyImportBut;
+    private javax.swing.JPanel publicKeyPanel;
+    private javax.swing.JTable publicKeyTable;
     private javax.swing.JPanel recievePanel;
     private javax.swing.JButton sendMsgBut;
     private javax.swing.JTabbedPane sendPanel;
+    private javax.swing.JPasswordField sendPasswordField;
+    private javax.swing.JLabel sendWarningLabel;
+    private javax.swing.JButton toAddBut;
+    private javax.swing.JComboBox<String> toComboBox;
+    private javax.swing.JTextField toTextField;
     // End of variables declaration//GEN-END:variables
 }
