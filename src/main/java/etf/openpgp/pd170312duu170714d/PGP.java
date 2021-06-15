@@ -114,9 +114,9 @@ public class PGP {
                 PGPLiteralDataGenerator ldg = new PGPLiteralDataGenerator();
                 packetStream = ldg.open(outStream, PGPLiteralData.BINARY, "message", new Date(), new byte[65536]);
                 packetStream.write( msg_ );
+                packetStream.close();
                 msg_ = outStream.toByteArray();
             }
-            packetStream.close();
 
             return msg_;
         } catch (IOException ex) {
@@ -148,13 +148,15 @@ public class PGP {
 
             PGPOnePassSignature signatureHeader = signGen.generateOnePassVersion(false );
 
+            byte[] literalPacket = convertToPGP(msg_ );
+            
             signGen.update( msg_ );
 
             PGPSignature signature = signGen.generate();
 
             try (ByteArrayOutputStream outStream = new ByteArrayOutputStream()) {
                 signatureHeader.encode( outStream );
-                outStream.write( msg_ );
+                outStream.write( literalPacket );
                 signature.encode( outStream );
                 msg_ = outStream.toByteArray();
             }
@@ -173,9 +175,9 @@ public class PGP {
                 PGPCompressedDataGenerator cdg = new PGPCompressedDataGenerator( PGPCompressedData.ZIP );
                 packetStream = cdg.open( outStream );
                 packetStream.write( msg_ );
+                packetStream.close();
                 msg_ = outStream.toByteArray();
             }
-            packetStream.close();
 
             return msg_;
         } catch (IOException ex) {
@@ -221,9 +223,9 @@ public class PGP {
                         new JcePublicKeyKeyEncryptionMethodGenerator( receiverPublicKey ).setProvider( "BC" ));
                 packetStream = edg.open( outStream, new byte[65536]);
                 packetStream.write( msg_ );
+                packetStream.close();
                 msg_ = outStream.toByteArray();
             }
-            packetStream.close();
 
             return msg_;
         } catch (IOException | PGPException ex) {
@@ -246,15 +248,15 @@ public class PGP {
         }
     }
     
-    public static byte[] serialize(byte[] msg_) throws Exception {
+    public static byte[] encodeR64(byte[] msg_) throws Exception {
         try {
             ArmoredOutputStream packetStream;
             try (ByteArrayOutputStream outStream = new ByteArrayOutputStream()) {
                 packetStream = new ArmoredOutputStream( outStream );
                 packetStream.write( msg_ );
+                packetStream.close();
                 msg_ = outStream.toByteArray();
             }
-            packetStream.close();
 
             return msg_;
         } catch (IOException ex) {

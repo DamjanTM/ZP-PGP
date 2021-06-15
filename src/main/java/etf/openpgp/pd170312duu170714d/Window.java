@@ -1251,28 +1251,33 @@ public class Window extends javax.swing.JFrame {
             boolean addCompression,
             boolean addConversionToRadix64 ) throws IOException
     {
-        // create a literal data packet from the message body
-        // ! only if the message is not going to be signed
-        if( !addSignature )
-            message = createLiteralPacket( message );
-
-        // if the message should be signed, append a signature packet
-        if( addSignature )
-            message = createSignaturePackets( message, senderDsaSecretKey, senderPassphrase );
-
-        // if the message should be compressed, turn it into a compressed packet
-        if( addCompression )
-            message = createCompressedPacket( message );
-
-        // if the message should be encrypted, turn it into an encrypted packet
-        if( encryptionAlgorithm != PGP.EncryptionAlgorithm.NONE )
-            message = createEncryptedPacket( message, receiverElGamalPublicKey, encryptionAlgorithm, senderPassphrase );
-
-        // if the message should be converted into radix64 format, encode it into that format
-        if( addConversionToRadix64 )
-            message = Utils.encodeAsRadix64( message );
-
-        return message;
+        try {
+            // create a literal data packet from the message body
+            // ! only if the message is not going to be signed
+            if( !addSignature )
+                message = PGP.convertToPGP(message );
+            
+            // if the message should be signed, append a signature packet
+            if( addSignature )
+                message = PGP.sign(message, senderDsaSecretKey, senderPassphrase );
+            
+            // if the message should be compressed, turn it into a compressed packet
+            if( addCompression )
+                message = PGP.zip(message);
+            
+            // if the message should be encrypted, turn it into an encrypted packet
+            if( encryptionAlgorithm != PGP.EncryptionAlgorithm.NONE )
+                message = PGP.encrypt(message, PGPEncryptedData.TRIPLE_DES, receiverElGamalPublicKey );
+            
+            // if the message should be converted into radix64 format, encode it into that format
+            if( addConversionToRadix64 )
+                message = PGP.encodeR64( message );
+            
+            return message;
+        } catch (Exception ex) {
+            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
     
 
@@ -1594,174 +1599,83 @@ public class Window extends javax.swing.JFrame {
     }//GEN-LAST:event_delete_pub_keyActionPerformed
 
     private void sendMsgButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendMsgButActionPerformed
-        // CHECK IF PASSWORD IS OK <---------------------------------------------------
-        //trykod
-        String textMessage = msgTextArea.getText();
-
-        // Read encryption metadata
-        boolean addSignature = doSign.isSelected();
-        boolean addCompression = doZip.isSelected();
-        boolean addConversionToRadix64 = doSerialize.isSelected();
-
-        // Read sender secret key id
-        int senderKeyComboBoxIndex = fromComboBox.getSelectedIndex();
-        String senderNameAndKeyID = fromComboBox.getItemAt( senderKeyComboBoxIndex );
-        if( senderNameAndKeyID == null )
-        return;
-
-        String senderKeyIdHexString = senderNameAndKeyID.split( "\\|" )[ 1 ];
-        long senderKeyID = Utils.hexStringToKeyId( senderKeyIdHexString );
-
-        // Read sender secret key
-        PGPSecretKeyRing senderSecretKeyring;
-        PGPSecretKey senderSecretKey;
-        senderSecretKeyring = sKeyChain.getSecretKeyRing( senderKeyID );
-        Iterator<PGPSecretKey> keyIter = senderSecretKeyring.getSecretKeys();
-        senderSecretKey = keyIter.next();
-
-        // Read sender passphrase
-        char[] senderPassphrase = sendPasswordField.getPassword();
-
-        try {
-            if( addSignature && !SecretKeyChain.isValidPassphrase( senderSecretKeyring, 0, senderPassphrase ) )
-            {
-                return;
-            }
-        } catch (PGPException ex) {
-            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+        if(fromComboBox.getSelectedIndex() == -1) {
+            sendWarningLabel.setText("Potreban pošaljilac!");
+            return;
         }
-
-        // check if there is at least one selected recepient
-        for( int i = 0; i < toComboBox.getItemCount(); i++ )
-        {
-            // Read receiver public key id
-            String receiverNameEmailAndKeyID = toComboBox.getItemAt( i );
-            if( "x ".equals( receiverNameEmailAndKeyID.substring( 0, 2 ) ) )
-            {
-                break;
-            }
-            if( i == toComboBox.getItemCount() - 1 )
+        if(toComboBox.getSelectedIndex() == -1) {
+            sendWarningLabel.setText("Potreban primalac!");
             return;
         }
 
-        // get the file path
-        String selectedFilePath = Utils.getUserSelectedFilePath( Utils.SAVE_DIALOG, Utils.PGP_MESSAGE_FILE );
-        if( selectedFilePath == null )
-        return;
+        
+        long sendKeyID = Utils.hexStringToKeyId( fromComboBox.getItemAt( fromComboBox.getSelectedIndex() ).split( "\\|" )[ 1 ] );
+        long receiveKeyID = Utils.hexStringToKeyId( toComboBox.getItemAt( toComboBox.getSelectedIndex() ).split( "> \\| " )[ 1 ] );
 
-        int sentMessagesCount = 0;
-        for( int i = 0; i < toComboBox.getItemCount(); i++ )
-        {
-            // Read sender email
-            String senderNameEmailAndKeyID = fromComboBox.getItemAt( fromComboBox.getSelectedIndex() );
+        PGPSecretKeyRing sendsKeyRing = sKeyChain.getSecretKeyRing( sendKeyID );
+        PGPSecretKey sendPK = sendsKeyRing.getSecretKeys().next();
 
-            // Read receiver public key id
-            String receiverNameEmailAndKeyID = toComboBox.getItemAt( i );
-            String originalReceiverNameEmailAndKeyID = toComboBox.getItemAt( i );
-            originalReceiverNameEmailAndKeyID = originalReceiverNameEmailAndKeyID.substring(2, originalReceiverNameEmailAndKeyID.length());
-            if( !"x ".equals( receiverNameEmailAndKeyID.substring( 0, 2 ) ) )
-            {
-                continue;
+        Iterator<PGPPublicKey> pubKeyIter = pKeyChain.getPublicKeyRing( receiveKeyID ).getPublicKeys();
+        pubKeyIter.next();
+        PGPPublicKey recievePU = pubKeyIter.next();
+
+
+        char[]  password = sendPasswordField.getPassword();
+        byte[] msg = new SimpleRFC288Message(fromComboBox.getItemAt( fromComboBox.getSelectedIndex() )  // sender name, e-mail & ID
+                , toComboBox.getItemAt( toComboBox.getSelectedIndex() )                                 // reciever name, e-mail & ID
+                , msgTextArea.getText()).ConvertToSimplifiedRFC822().getBytes();
+
+
+        
+        try {
+            // START SEND
+            if (!doSign.isSelected())
+                msg = PGP.convertToPGP(msg);
+            else {
+                if (SecretKeyChain.isValidPassphrase( sendsKeyRing, 0, password ))
+                    msg = PGP.sign(msg, sendPK, password);
+                else {
+                    sendWarningLabel.setText("Pogrešna šifra!");
+                    return;
+                }
             }
-            // remove the selection symbol from the receiver name, email and key id
-            receiverNameEmailAndKeyID = receiverNameEmailAndKeyID.substring( 2 );
+            if(doZip.isSelected()) {
+                msg = PGP.zip(msg);
+            }
+            if(doEncryptSym.isSelected()) {
+                int algorithm = PGPEncryptedData.TRIPLE_DES;
+                if (jIDEAEncryptionRadioButton.isSelected()) algorithm = PGPEncryptedData.IDEA;
+                msg = PGP.encrypt(msg, algorithm, recievePU);
+            }
 
-            // get the receiver key id
-            String receiverKeyIdHexString = receiverNameEmailAndKeyID.split( "> \\| " )[ 1 ];
-            long receiverKeyID = Utils.hexStringToKeyId( receiverKeyIdHexString );
-
-            // fix the receiver name, email and key id string
-            receiverNameEmailAndKeyID = receiverNameEmailAndKeyID.replaceAll( "<", "[" );
-            receiverNameEmailAndKeyID = receiverNameEmailAndKeyID.replaceAll( ">", "]" );
-            receiverNameEmailAndKeyID = receiverNameEmailAndKeyID.replaceAll( "\\|", "." );
-
-            // Read receiver public key
-            PGPPublicKey receiverPublicKey;
-            PGPPublicKeyRing receiverKeyRing = pKeyChain.getPublicKeyRing( receiverKeyID );
-            Iterator<PGPPublicKey> pubKeyIter = receiverKeyRing.getPublicKeys();
-            pubKeyIter.next();   // skip the DSA signing key, and use the ElGamal encryption key
-            receiverPublicKey = pubKeyIter.next();
-
-            // Read encryption algorithm
-            PGP.EncryptionAlgorithm encryptionAlgorithm = PGP.EncryptionAlgorithm.NONE;
-
-            if(j3desEncryptionRadioButton.isSelected())encryptionAlgorithm = PGP.EncryptionAlgorithm.ELGAMAL_3DES;
-            else if(jIDEAEncryptionRadioButton.isSelected())encryptionAlgorithm = PGP.EncryptionAlgorithm.ELGAMAL_IDEA;
-            if(doEncryptSym.isSelected()) encryptionAlgorithm = PGP.EncryptionAlgorithm.NONE;
-
-            byte[] byteMessage = new SimpleRFC288Message(senderNameEmailAndKeyID, originalReceiverNameEmailAndKeyID, textMessage).ConvertToSimplifiedRFC822().getBytes();
-
-            // Encryption
-            byte[] encryptedMessage = null;
             try {
-                encryptedMessage = createPgpMessage(
-                    byteMessage,
-                    senderSecretKey,
-                    receiverPublicKey,
-                    encryptionAlgorithm,
-                    senderPassphrase,
-                    addSignature,
-                    addCompression,
-                    addConversionToRadix64 );
+                Path directory = null;
+                JFileChooser chooser = new JFileChooser(startingFolder);
+                FileNameExtensionFilter filter = new FileNameExtensionFilter("GPG message files", "gpg");
+                chooser.setFileFilter(filter);
+                int returnVal = chooser.showOpenDialog(new JPanel());
+                if(returnVal == JFileChooser.APPROVE_OPTION) {
+                    directory = Paths.get(chooser.getSelectedFile().getPath());
+                    startingFolder = chooser.getSelectedFile().getParentFile().getPath();
+                    if( !directory.endsWith( ".gpg" ) )
+                    directory = directory.resolveSibling(directory.getFileName() + ".gpg");
+                }
+
+                Files.write( directory, msg );
             } catch (IOException ex) {
                 Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
             }
+            // END SEND
+            CardLayout card = (CardLayout)jCardPanel.getLayout();
+            card.show(jCardPanel, "homeCard");
 
-            // Append receiver name to file path
-            String filePath = selectedFilePath.replaceAll( "(\\..*)$", " . " + receiverNameEmailAndKeyID + "$1" );
-            Utils.writeToFile( filePath, encryptedMessage );
-
-            sentMessagesCount++;
-            /*
-            //trykodends
-            try {
-                // START SEND
-                byte[] msg = msgTextArea.getText().getBytes();
-                msg = PGP.convertToPGP(msg);
-                if (doSign.isSelected()) {
-                    char[]  password = sendPasswordField.getPassword();
-                    if (SecretKeyChain.isValidPassphrase(secretKeyring, WIDTH, password))
-                    msg = PGP.sign(msg, senderSecretKey_, password);
-                    else {
-                        sendWarningLabel.setText("Wrong password!");
-                    }
-                }
-                if(doZip.isSelected()) {
-                    msg = PGP.zip(msg);
-                }
-                if(doEncryptSym.isSelected()) {
-                    int algorithm = PGPEncryptedData.TRIPLE_DES;
-                    if (jIDEAEncryptionRadioButton.isSelected()) algorithm = PGPEncryptedData.IDEA;
-                    msg = PGP.encrypt(msg, algorithm, receiverPublicKey);
-                }
-
-                try {
-                    Path directory = null;
-                    JFileChooser chooser = new JFileChooser(startingFolder);
-                    FileNameExtensionFilter filter = new FileNameExtensionFilter("GPG message files", "gpg");
-                    chooser.setFileFilter(filter);
-                    int returnVal = chooser.showOpenDialog(new JPanel());
-                    if(returnVal == JFileChooser.APPROVE_OPTION) {
-                        directory = Paths.get(chooser.getSelectedFile().getPath());
-                        startingFolder = chooser.getSelectedFile().getParentFile().getPath();
-                    }
-
-                    Files.write( directory, msg );
-                } catch (IOException ex) {
-                    Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                // END SEND
-                CardLayout card = (CardLayout)jCardPanel.getLayout();
-                card.show(jCardPanel, "homeCard");
-
-                sendPanel.setSelectedIndex(0);
-                sendWarningLabel.setText("");
-            } catch (Exception ex) {
-                Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
-                sendWarningLabel.setText("Error");
-            }
-            */
+            sendPanel.setSelectedIndex(0);
+            sendWarningLabel.setText("");
+        } catch (Exception ex) {
+            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+            sendWarningLabel.setText("Error");
         }
+        
     }//GEN-LAST:event_sendMsgButActionPerformed
 
     private void decrypt_message_button(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_decrypt_message_button
