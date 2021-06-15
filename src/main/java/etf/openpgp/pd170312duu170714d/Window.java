@@ -1295,7 +1295,7 @@ public class Window extends javax.swing.JFrame {
 
         // if the message should be converted into radix64 format, encode it into that format
         if( addConversionToRadix64 )
-            message = Base64.encode( message );
+            message = Utils.encodeAsRadix64( message );
 
         return message;
     }

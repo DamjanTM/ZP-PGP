@@ -5,6 +5,7 @@
  */
 package etf.openpgp.pd170312duu170714d;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -17,6 +18,7 @@ import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import org.bouncycastle.bcpg.ArmoredOutputStream;
 
 /**
  *
@@ -154,18 +156,64 @@ public class Utils {
     
     public static void writeToFile( String filePath, byte[] content )
     {
-        File outputFile = new File( filePath );
-        outputFile.createNewFile();
-        FileOutputStream fos = null;
         try {
-            fos = new FileOutputStream( filePath );
-            fos.write( content );
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+            File outputFile = new File( filePath );
+            outputFile.createNewFile();
+            FileOutputStream fos = null;
+            try {
+                fos = new FileOutputStream( filePath );
+                fos.write( content );
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
         } catch (IOException ex) {
             Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+    }
+    
+    public static byte[] encodeAsRadix64(
+            byte[] message ) throws IOException
+    {
+        if( message == null )
+            return null;
+
+        ByteArrayOutputStream messageStream = null;
+        ArmoredOutputStream armoredStream = null;
+
+        try
+        {
+            // make an armored output stream using the message stream
+            messageStream = new ByteArrayOutputStream();
+            armoredStream = new ArmoredOutputStream( messageStream );
+
+            // write the radix64 data packet to the message stream and close the armored data stream
+            armoredStream.write( message );
+            armoredStream.close();
+
+            // overwrite the message buffer and close the message stream
+            message = messageStream.toByteArray();
+            messageStream.close();
+
+            return message;
+        }
+        catch( IOException ex ){}
+        finally
+        {
+            try
+            {
+                // close all open resources
+                if( messageStream != null )
+                    messageStream.close();
+                if( armoredStream != null )
+                    armoredStream.close();
+            }
+            catch( IOException ex ){}
+        }
+        return null;
     }
 
     public static void writeToFile( String filePath, String content )
