@@ -15,11 +15,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.openpgp.PGPUtil;
@@ -71,185 +73,29 @@ public class Utils {
     public static final int PGP_KEY_FILE = 2;
     public static final int TXT_FILE = 3;
     // file chooser previous path
-    private static File previousPath = null;
 
-    public static String getUserSelectedFilePath( int dialogType, int allowedFileType )
+    private static String startingFolder = System.getProperty("user.home")+"\\Desktop";
+        
+    public static Path getUserSelectedFilePath( int dialogType_, String extension_ )
     {
-        JFileChooser jFileChooser = new javax.swing.JFileChooser();
-        jFileChooser.setFileSelectionMode( JFileChooser.FILES_ONLY );
-        jFileChooser.setMultiSelectionEnabled( false );
-        jFileChooser.setCurrentDirectory( previousPath );
-
-        switch( allowedFileType )
-        {
-            case ANY_FILE:
-            {
-                break;
-            }
-            case PGP_MESSAGE_FILE:
-            {
-                jFileChooser.setFileFilter( new FileNameExtensionFilter( "PGP message (*.gpg, *.sig)", "gpg", "sig" ) );
-                break;
-            }
-            case PGP_KEY_FILE:
-            {
-                jFileChooser.setFileFilter( new FileNameExtensionFilter( "PGP key file (*.asc)", "asc" ) );
-                break;
-            }
-            case TXT_FILE:
-            {
-                jFileChooser.setFileFilter( new FileNameExtensionFilter( "Text file (*.txt)", "txt" ) );
-                break;
-            }
-            default:
-            {
-                throw new IllegalArgumentException( "Invalid <allowed file type> provided" );
-            }
+        Path ret = null;
+        JFileChooser chooser = new JFileChooser(startingFolder);
+        chooser.setDialogType(dialogType_);
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("(*."+extension_+") files", extension_);
+        chooser.setFileFilter(filter);
+        int returnVal = chooser.showOpenDialog(new JPanel());
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            ret = Paths.get(chooser.getSelectedFile().getPath());
+            startingFolder = chooser.getSelectedFile().getParentFile().getPath();
+            if( !ret.endsWith( "." + extension_ ) )
+                ret = ret.resolveSibling(ret.getFileName() +  "." + extension_ );
         }
-
-        JFrame jFrame = new JFrame();
-        jFrame.setDefaultCloseOperation( javax.swing.WindowConstants.DISPOSE_ON_CLOSE );
-        // these two lines dont't work since we don't have internal access to the showOpenDialog and showSaveDialog methods
-        // jFrame.setTitle("Choose file");
-        // jFrame.getContentPane().setSize(new Dimension(640, 480));
-
-        int dialogStatus = -1;
-        switch( dialogType )
-        {
-            case OPEN_DIALOG:
-            {
-                dialogStatus = jFileChooser.showOpenDialog( jFrame );
-                break;
-            }
-            case SAVE_DIALOG:
-            {
-                dialogStatus = jFileChooser.showSaveDialog( jFrame );
-                break;
-            }
-            default:
-            {
-                throw new IllegalArgumentException( "Invalid dialog type provided" );
-            }
-        }
-
-        if( dialogStatus != JFileChooser.APPROVE_OPTION )
-        {
-            return null;
-        }
-
-        String filePath = jFileChooser.getSelectedFile().getAbsolutePath();
-        switch( allowedFileType )
-        {
-            case PGP_MESSAGE_FILE:
-            {
-                if( !filePath.endsWith( ".gpg" ) )
-                    filePath += ".gpg";
-                break;
-            }
-            case PGP_KEY_FILE:
-            {
-                if( !filePath.endsWith( ".asc" ) )
-                    filePath += ".asc";
-                break;
-            }
-        }
-
-        previousPath = jFileChooser.getCurrentDirectory();
-        return filePath;
+        return ret;
     }
     
-    public static void writeToFile( String filePath, byte[] content )
-    {
-        try {
-            File outputFile = new File( filePath );
-            outputFile.createNewFile();
-            FileOutputStream fos = null;
-            try {
-                fos = new FileOutputStream( filePath );
-                fos.write( content );
-            } catch (FileNotFoundException ex) {
-                Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
-                Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            
-        } catch (IOException ex) {
-            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-    }
-    
-    public static byte[] readFromFile( String filePath )
-    {
-        File file = new File( filePath );
-        try(FileInputStream fin = new FileInputStream( file );)
-        {
-            byte fileContent[] = new byte[( int )file.length()];
-            fin.read( fileContent );
-            return fileContent;
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        return null;
-    }
         public static InputStream removeRadix64Encoding( InputStream inputStream ) throws IOException
     {
         return PGPUtil.getDecoderStream( new BufferedInputStream( inputStream ) );
-    }
-
-    
-    public static byte[] encodeAsRadix64(
-            byte[] message ) throws IOException
-    {
-        if( message == null )
-            return null;
-
-        ByteArrayOutputStream messageStream = null;
-        ArmoredOutputStream armoredStream = null;
-
-        try
-        {
-            // make an armored output stream using the message stream
-            messageStream = new ByteArrayOutputStream();
-            armoredStream = new ArmoredOutputStream( messageStream );
-
-            // write the radix64 data packet to the message stream and close the armored data stream
-            armoredStream.write( message );
-            armoredStream.close();
-
-            // overwrite the message buffer and close the message stream
-            message = messageStream.toByteArray();
-            messageStream.close();
-
-            return message;
-        }
-        catch( IOException ex ){}
-        finally
-        {
-            try
-            {
-                // close all open resources
-                if( messageStream != null )
-                    messageStream.close();
-                if( armoredStream != null )
-                    armoredStream.close();
-            }
-            catch( IOException ex ){}
-        }
-        return null;
-    }
-
-    public static void writeToFile( String filePath, String content )
-    {
-        try( PrintWriter out = new PrintWriter( filePath ) )
-        {
-            out.println( content );
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
 }

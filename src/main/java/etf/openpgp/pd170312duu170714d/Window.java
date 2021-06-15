@@ -11,6 +11,8 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -63,7 +65,6 @@ import org.bouncycastle.util.encoders.Base64;
 
 public class Window extends javax.swing.JFrame {
 
-    private String startingFolder = System.getProperty("user.home")+"\\Desktop";
     public static SecretKeyChain sKeyChain = new SecretKeyChain();
     public static PublicKeyChain pKeyChain = new PublicKeyChain();
     private PGP.PgpMessage pgp_mess;
@@ -1071,10 +1072,6 @@ public class Window extends javax.swing.JFrame {
         doEncriptAsym.setSelected(doEncryptSym.isSelected());
     }                                            
 
-    private void genElgamalKeyButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_genElgamalKeyButActionPerformed
-        generatorDialog.setVisible(true);
-    }//GEN-LAST:event_genElgamalKeyButActionPerformed
-
     private void doEncriptAsymActionPerformed(java.awt.event.ActionEvent evt) {                                              
         doEncryptSym.setSelected(doEncriptAsym.isSelected());
     }                                             
@@ -1084,18 +1081,9 @@ public class Window extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // Import text on send form
         try {
-            Path directory = null;
-            JFileChooser chooser = new JFileChooser(startingFolder);
-            FileNameExtensionFilter filter = new FileNameExtensionFilter("TXT Files", "txt");
-            chooser.setFileFilter(filter);
-            int returnVal = chooser.showOpenDialog(new JPanel());
-            if(returnVal == JFileChooser.APPROVE_OPTION) {
-                directory = Paths.get(chooser.getSelectedFile().getPath());
-                startingFolder = chooser.getSelectedFile().getParentFile().getPath();
-            }
-
+            // Import text on send form
+            Path directory = Utils.getUserSelectedFilePath(JFileChooser.OPEN_DIALOG, "txt");
             msgTextArea.setText(Files.readString(directory));
         } catch (IOException ex) {
             Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
@@ -1280,17 +1268,7 @@ public class Window extends javax.swing.JFrame {
     private void privateKeyImportButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_privateKeyImportButActionPerformed
         // Import private keypair
         
-        Path directory = null;
-        JFileChooser chooser = new JFileChooser(startingFolder);
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("Keypair Files", "asc");
-        chooser.setFileFilter(filter);
-        int returnVal = chooser.showOpenDialog(new JPanel());
-        if(returnVal == JFileChooser.APPROVE_OPTION) {
-            directory = Paths.get(chooser.getSelectedFile().getPath());
-            startingFolder = chooser.getSelectedFile().getParentFile().getPath();
-        }
-
-        // TO-DO Ovde treba importovati selektovani fajl (directory)
+        Path directory = Utils.getUserSelectedFilePath(JFileChooser.OPEN_DIALOG, "asc");
         
         sKeyChain.importSecretKey( directory.toString() );
         sKeyChain.saveKeysToFile(null);
@@ -1301,15 +1279,7 @@ public class Window extends javax.swing.JFrame {
     private void publicKeyImportButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_publicKeyImportButActionPerformed
         // Import javnog keypair
         
-        Path directory = null;
-        JFileChooser chooser = new JFileChooser(startingFolder);
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("Keypair Files", "asc");
-        chooser.setFileFilter(filter);
-        int returnVal = chooser.showOpenDialog(new JPanel());
-        if(returnVal == JFileChooser.APPROVE_OPTION) {
-            directory = Paths.get(chooser.getSelectedFile().getPath());
-            startingFolder = chooser.getSelectedFile().getParentFile().getPath();
-        }
+        Path directory = Utils.getUserSelectedFilePath(JFileChooser.OPEN_DIALOG, "asc");
 
         // TO-DO Ovde treba importovati selektovani fajl (directory)
         pKeyChain.importPublicKey(directory.toString());
@@ -1322,8 +1292,8 @@ public class Window extends javax.swing.JFrame {
         // TODO add your handling code here:
         //export privatnog kljuca
         
-        String path = Utils.getUserSelectedFilePath( Utils.SAVE_DIALOG, Utils.PGP_KEY_FILE );
-        System.out.println(path);
+        Path path = Utils.getUserSelectedFilePath( Utils.SAVE_DIALOG, "asc" );
+        System.out.println(path.toString());
         
         //dohvati keyID
         int rowIdx = privateKeyTable.getSelectedRow();
@@ -1334,7 +1304,7 @@ public class Window extends javax.swing.JFrame {
         long keyID = ( long )privateKeyTable.getValueAt( rowIdx, 3 );
         
         PGPSecretKeyRing export_keypair = sKeyChain.getSecretKeyRing( keyID );
-        SecretKeyChain.exportSecretKey( export_keypair, path );
+        SecretKeyChain.exportSecretKey( export_keypair, path.toString() );
     }//GEN-LAST:event_export_private_keyActionPerformed
 
     private void delete_private_keyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delete_private_keyActionPerformed
@@ -1353,8 +1323,8 @@ public class Window extends javax.swing.JFrame {
 
     private void export_pub_keyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_export_pub_keyActionPerformed
         // TODO add your handling code here:
-        String path = Utils.getUserSelectedFilePath( Utils.SAVE_DIALOG, Utils.PGP_KEY_FILE );
-        System.out.println(path);
+        Path path = Utils.getUserSelectedFilePath( Utils.SAVE_DIALOG, "asc" );
+        System.out.println(path.toString());
         
         //dohvati keyID
         int rowIdx = publicKeyTable.getSelectedRow();
@@ -1365,7 +1335,7 @@ public class Window extends javax.swing.JFrame {
         long keyID = ( long )publicKeyTable.getValueAt( rowIdx, 3 );
         
         PGPPublicKeyRing export_keypair = pKeyChain.getPublicKeyRing( keyID );
-        pKeyChain.exportPublicKey( export_keypair, path );
+        pKeyChain.exportPublicKey( export_keypair, path.toString() );
     }//GEN-LAST:event_export_pub_keyActionPerformed
 
     private void delete_pub_keyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delete_pub_keyActionPerformed
@@ -1434,23 +1404,11 @@ public class Window extends javax.swing.JFrame {
                 msg = PGP.encrypt(msg, algorithm, recievePU);
             }
 
-            try {
-                Path directory = null;
-                JFileChooser chooser = new JFileChooser(startingFolder);
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("GPG message files", "gpg");
-                chooser.setFileFilter(filter);
-                int returnVal = chooser.showOpenDialog(new JPanel());
-                if(returnVal == JFileChooser.APPROVE_OPTION) {
-                    directory = Paths.get(chooser.getSelectedFile().getPath());
-                    startingFolder = chooser.getSelectedFile().getParentFile().getPath();
-                    if( !directory.endsWith( ".gpg" ) )
-                    directory = directory.resolveSibling(directory.getFileName() + ".gpg");
-                }
+            
+                Path directory = Utils.getUserSelectedFilePath(JFileChooser.SAVE_DIALOG, "gpg");
 
                 Files.write( directory, msg );
-            } catch (IOException ex) {
-                Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
-            }
+
             // END SEND
             CardLayout card = (CardLayout)jCardPanel.getLayout();
             card.show(jCardPanel, "homeCard");
@@ -1512,16 +1470,26 @@ public class Window extends javax.swing.JFrame {
         } 
     }//GEN-LAST:event_decrypt_message_button
 
-    private void import_message_button(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_import_message_button
+    private void import_message_button(java.awt.event.ActionEvent evt) {                                       
         try {
-            String encryptedFilePath = Utils.getUserSelectedFilePath( Utils.OPEN_DIALOG, Utils.PGP_MESSAGE_FILE );
+            Path encryptedFilePath = Utils.getUserSelectedFilePath( Utils.OPEN_DIALOG, "gpg" );
             if( encryptedFilePath == null )
                 return;
             
             this.pgp_mess = new PGP.PgpMessage();
             
             // Read encrypted message
-            this.pgp_mess.encryptedMessage = Utils.readFromFile( encryptedFilePath );
+            File file = new File( encryptedFilePath.toString() );
+            try(FileInputStream fin = new FileInputStream( file );)
+            {
+                byte fileContent[] = new byte[( int )file.length()];
+                fin.read( fileContent );
+                this.pgp_mess.encryptedMessage =  fileContent;
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+            }
             
             InputStream inputStream = new ByteArrayInputStream( this.pgp_mess.encryptedMessage );
             inputStream = PGPUtil.getDecoderStream( new BufferedInputStream( inputStream ) );
@@ -1529,6 +1497,7 @@ public class Window extends javax.swing.JFrame {
         } catch (IOException ex) {
             Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
 
     private void sendPanelComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_sendPanelComponentShown
         update_email_from();
