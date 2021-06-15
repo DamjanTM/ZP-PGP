@@ -445,6 +445,11 @@ public class Window extends javax.swing.JFrame {
 
         jCardPanel.add(homePanel, "homeCard");
 
+        sendPanel.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                sendPanelComponentShown(evt);
+            }
+        });
 
         jLabel2.setFont(new java.awt.Font("Calibri", 1, 24)); // NOI18N
         jLabel2.setText("Sadržaj Poruke");
@@ -1839,6 +1844,11 @@ public class Window extends javax.swing.JFrame {
             Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton14ActionPerformed
+
+    private void sendPanelComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_sendPanelComponentShown
+        update_email_from();
+        update_email_to();
+    }//GEN-LAST:event_sendPanelComponentShown
 
 
     /**
