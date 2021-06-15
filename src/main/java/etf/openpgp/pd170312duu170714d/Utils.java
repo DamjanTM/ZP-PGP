@@ -5,12 +5,14 @@
  */
 package etf.openpgp.pd170312duu170714d;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -20,6 +22,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
+import org.bouncycastle.openpgp.PGPUtil;
 
 /**
  *
@@ -192,6 +195,11 @@ public class Utils {
 
         return null;
     }
+        public static InputStream removeRadix64Encoding( InputStream inputStream ) throws IOException
+    {
+        return PGPUtil.getDecoderStream( new BufferedInputStream( inputStream ) );
+    }
+
     
     public static byte[] encodeAsRadix64(
             byte[] message ) throws IOException

@@ -6,8 +6,13 @@
 package etf.openpgp.pd170312duu170714d;
 
 import java.awt.CardLayout;
+import java.awt.Color;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -20,9 +25,11 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
+import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.bcpg.HashAlgorithmTags;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openpgp.PGPCompressedData;
@@ -30,6 +37,7 @@ import org.bouncycastle.openpgp.PGPCompressedDataGenerator;
 import org.bouncycastle.openpgp.PGPEncryptedData;
 import org.bouncycastle.openpgp.PGPEncryptedDataGenerator;
 import org.bouncycastle.openpgp.PGPException;
+import org.bouncycastle.openpgp.PGPKeyRingGenerator;
 import org.bouncycastle.openpgp.PGPLiteralData;
 import org.bouncycastle.openpgp.PGPLiteralDataGenerator;
 import org.bouncycastle.openpgp.PGPOnePassSignature;
@@ -41,10 +49,12 @@ import org.bouncycastle.openpgp.PGPSecretKeyRing;
 import org.bouncycastle.openpgp.PGPSignature;
 import org.bouncycastle.openpgp.PGPSignatureGenerator;
 import org.bouncycastle.openpgp.PGPSignatureSubpacketGenerator;
+import org.bouncycastle.openpgp.PGPUtil;
 import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentSignerBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcePBESecretKeyDecryptorBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcePGPDataEncryptorBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcePublicKeyKeyEncryptionMethodGenerator;
+import org.bouncycastle.util.encoders.Base64;
 
 /**
  *
@@ -54,10 +64,9 @@ import org.bouncycastle.openpgp.operator.jcajce.JcePublicKeyKeyEncryptionMethodG
 public class Window extends javax.swing.JFrame {
 
     private String startingFolder = System.getProperty("user.home")+"\\Desktop";
-    private SecretKeyChain sKeyChain = new SecretKeyChain();
-    private PublicKeyChain pKeyChain = new PublicKeyChain();
+    public static SecretKeyChain sKeyChain = new SecretKeyChain();
+    public static PublicKeyChain pKeyChain = new PublicKeyChain();
     private PGP.PgpMessage pgp_mess;
-    
     public Window() {
         initComponents();
         Security.addProvider(new BouncyCastleProvider());
@@ -741,7 +750,7 @@ public class Window extends javax.swing.JFrame {
         jButton14.setText("Uvezi poruku");
         jButton14.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton14ActionPerformed(evt);
+                import_message_button(evt);
             }
         });
 
@@ -1459,82 +1468,67 @@ public class Window extends javax.swing.JFrame {
         
         char[] password = decrypt_password_field.getPassword();
 
-        // TODO(uros): Check if the password is valid
+        try
+        {
+            PGP.decryptPgpMessage( password, this.pgp_mess );
+            PGP.PgpDecryptionState pds = new PGP.PgpDecryptionState();
 
-            //PGP.decryptPgpMessage( password, this.pgp_mess );
+            InputStream inputStream = new ByteArrayInputStream( this.pgp_mess.encryptedMessage );
+            inputStream = Utils.removeRadix64Encoding( inputStream );
 
-            System.out.println( "pgpMessage.senderSecretKeyId: " + this.pgp_mess.senderSecretKeyId );
+            // check if message is radix64 encoded
+            this.pgp_mess.isRadix64Encoded = inputStream instanceof ArmoredInputStream;
 
-            /*if( pgpMessage.senderSecretKeyId != 0 )
+            // check if the message is encrypted
+            PGP.checkIfEncrypted( inputStream, this.pgp_mess, pds );
+
+            if( this.pgp_mess.isEncrypted )  // Message is encrypted, try to decrypt it
             {
-                jRecv_FromTextbox.setText( ( String )PGPKeys
-                        .getPublicKeyRing( pgpMessage.senderSecretKeyId )
-                        .getPublicKey()
-                        .getUserIDs()
-                        .next() );
-            }*/
+                PGP.decrypt( this.pgp_mess, pds, password );
+            }
+            else  // Message is not encrypted
+            {
+                pds.currentMessage = pds.pgpObject;
+            }
+
+            // If compressed, decompress
+            PGP.decompress( this.pgp_mess, pds );
+
+            // check if the message is signed
+            PGP.checkIfSigned( this.pgp_mess, pds );
+
+            // Unpack literal, optionally verify message integrity
+            // and read and check signature
+            PGP.unpackLiteral( this.pgp_mess, pds );
+
+            System.out.println( "this.pgp_mess.senderSecretKeyId: " + this.pgp_mess.senderSecretKeyId );
             
             SimpleRFC288Message rm = SimpleRFC288Message.fromSimplifiedRFC822(new String(this.pgp_mess.decryptedMessage));
             recieveTextArea.setText(rm.message);
-
+        } catch (IOException ex) {
+            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (PGPException ex) {
+            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+        } 
     }//GEN-LAST:event_decrypt_message_button
 
     private void import_message_button(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_import_message_button
-        String encryptedFilePath = Utils.getUserSelectedFilePath( Utils.OPEN_DIALOG, Utils.PGP_MESSAGE_FILE );
-        if( encryptedFilePath == null )
-            return;
-
-        this.pgp_mess = new PGP.PgpMessage();
-
-        // Read encrypted message
-        this.pgp_mess.encryptedMessage = Utils.readFromFile( encryptedFilePath );
-
-        // Read PGP message (without decrypting it)
-        try
-        {
-            PGP.readPgpMessage( this.pgp_mess );
-            
-            if( this.pgp_mess.isEncrypted )
-            {
-                decrypt_password_field.setEditable( true );
-                decrypt_password_field.setEnabled( true );
-            }
-            else
-            {
-                SimpleRFC288Message rm = SimpleRFC288Message.fromSimplifiedRFC822(new String(this.pgp_mess.decryptedMessage));
-                recieveTextArea.setText(rm.message);
-            }
-        } catch (Exception ex) {
-            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }//GEN-LAST:event_import_message_button
-
-    private void jButton14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton14ActionPerformed
         try {
-            Path directory = null;
-            JFileChooser chooser = new JFileChooser(startingFolder);
-            FileNameExtensionFilter filter = new FileNameExtensionFilter("PGP Message Files", "gpg");
-            chooser.setFileFilter(filter);
-            int returnVal = chooser.showOpenDialog(new JPanel());
-            if(returnVal == JFileChooser.APPROVE_OPTION) {
-                directory = Paths.get(chooser.getSelectedFile().getPath());
-                startingFolder = chooser.getSelectedFile().getParentFile().getPath();
-            }
-            
-            String file = Files.readString(directory);
-            try {
-                byte[] ret = PGP.decryptFile(file, sKeyChain, null);
-                recieveTextArea.setText(new String(ret));
-                
-            } catch (IllegalArgumentException ex) {
-                recieveTextArea.setText("Poruka je enkriptovana!");
+            String encryptedFilePath = Utils.getUserSelectedFilePath( Utils.OPEN_DIALOG, Utils.PGP_MESSAGE_FILE );
+            if( encryptedFilePath == null )
                 return;
-            }
             
+            this.pgp_mess = new PGP.PgpMessage();
+            
+            // Read encrypted message
+            this.pgp_mess.encryptedMessage = Utils.readFromFile( encryptedFilePath );
+            
+            InputStream inputStream = new ByteArrayInputStream( this.pgp_mess.encryptedMessage );
+            inputStream = PGPUtil.getDecoderStream( new BufferedInputStream( inputStream ) );
+            recieveTextArea.setText(Base64.toBase64String(this.pgp_mess.encryptedMessage));
         } catch (IOException ex) {
             Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_jButton14ActionPerformed
 
     private void sendPanelComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_sendPanelComponentShown
         update_email_from();
