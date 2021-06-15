@@ -61,7 +61,7 @@ public class Window extends javax.swing.JFrame {
     private String startingFolder = System.getProperty("user.home")+"\\Desktop";
     private SecretKeyChain sKeyChain = new SecretKeyChain();
     private PublicKeyChain pKeyChain = new PublicKeyChain();
-    
+    private PGP.PgpMessage pgp_mess;
     public Window() {
         initComponents();
         Security.addProvider(new BouncyCastleProvider());
@@ -165,19 +165,14 @@ public class Window extends javax.swing.JFrame {
         jLabel25 = new javax.swing.JLabel();
         fromComboBox = new javax.swing.JComboBox<>();
         toComboBox = new javax.swing.JComboBox<>();
-        toAddBut = new javax.swing.JButton();
         jLabel26 = new javax.swing.JLabel();
         sendPasswordField = new javax.swing.JPasswordField();
         jLabel3 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         doSign = new javax.swing.JCheckBox();
-        dsaKeyStatusLabel = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         doEncriptAsym = new javax.swing.JCheckBox();
-        elgamalKeyStatusLabel = new javax.swing.JLabel();
-        importElgamalKeyBut = new javax.swing.JButton();
-        genElgamalKeyBut = new javax.swing.JButton();
         jLabel15 = new javax.swing.JLabel();
         jLabel16 = new javax.swing.JLabel();
         doZip = new javax.swing.JCheckBox();
@@ -197,10 +192,10 @@ public class Window extends javax.swing.JFrame {
         recievePanel = new javax.swing.JPanel();
         jLabel21 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea2 = new javax.swing.JTextArea();
+        recieve_text_area = new javax.swing.JTextArea();
         jButton14 = new javax.swing.JButton();
         jButton15 = new javax.swing.JButton();
-        jPasswordField1 = new javax.swing.JPasswordField();
+        decrypt_password_field = new javax.swing.JPasswordField();
         jButton10 = new javax.swing.JButton();
         keyringPanel = new javax.swing.JTabbedPane();
         publicKeyPanel = new javax.swing.JPanel();
@@ -484,11 +479,7 @@ public class Window extends javax.swing.JFrame {
 
         toComboBox.setSelectedItem(publicKeyTable);
 
-        toAddBut.setText("Dodaj");
-
         jLabel26.setText("Ka:");
-
-        sendPasswordField.setText("jPasswordField1");
 
         jLabel3.setText("Šifra:");
 
@@ -505,23 +496,21 @@ public class Window extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jButton5))
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel25)
-                            .addComponent(jLabel26))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel2)
                             .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(fromComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel25)
+                                    .addComponent(jLabel26))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(fromComboBox, 0, 376, Short.MAX_VALUE)
+                                    .addComponent(toComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGap(43, 43, 43)
                                 .addComponent(jLabel3)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(sendPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(toComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(toAddBut)))
+                                .addComponent(sendPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -529,24 +518,29 @@ public class Window extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(fromComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel25)
-                    .addComponent(sendPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(toComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(toAddBut)
-                    .addComponent(jLabel26))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 242, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton5)
-                    .addComponent(jButton4))
-                .addContainerGap())
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(fromComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel25))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(toComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel26))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jButton5)
+                            .addComponent(jButton4))
+                        .addContainerGap())
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(21, 21, 21)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(sendPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel3))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
 
         sendPanel.addTab("Poruka", jPanel2);
@@ -557,11 +551,6 @@ public class Window extends javax.swing.JFrame {
 
         doSign.setSelected(true);
 
-        dsaKeyStatusLabel.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        dsaKeyStatusLabel.setForeground(new java.awt.Color(187, 87, 87));
-        dsaKeyStatusLabel.setText("Ključ Potreban");
-        dsaKeyStatusLabel.setToolTipText("");
-
         jLabel7.setFont(new java.awt.Font("Calibri", 1, 24)); // NOI18N
         jLabel7.setText("Enkripcija");
         jLabel7.setToolTipText("");
@@ -570,20 +559,6 @@ public class Window extends javax.swing.JFrame {
         doEncriptAsym.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 doEncriptAsymActionPerformed(evt);
-            }
-        });
-
-        elgamalKeyStatusLabel.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
-        elgamalKeyStatusLabel.setForeground(new java.awt.Color(187, 87, 87));
-        elgamalKeyStatusLabel.setText("Ključ Potreban");
-        elgamalKeyStatusLabel.setToolTipText("");
-
-        importElgamalKeyBut.setText("Uvezi Ključeve");
-
-        genElgamalKeyBut.setText("Generiši Ključeve");
-        genElgamalKeyBut.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                genElgamalKeyButActionPerformed(evt);
             }
         });
 
@@ -658,88 +633,85 @@ public class Window extends javax.swing.JFrame {
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(jLabel4)
+                                .addComponent(jLabel12)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(doSign)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addComponent(dsaKeyStatusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel15, javax.swing.GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE))
-                        .addGap(12, 12, 12)
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(doEncryptSym))
+                            .addComponent(jLabel18)
                             .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(jLabel7)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(doEncriptAsym))
-                            .addComponent(jLabel16, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(elgamalKeyStatusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                .addComponent(j3desEncryptionRadioButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jIDEAEncryptionRadioButton)))
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                         .addComponent(jButton13)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(sendWarningLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(sendMsgBut, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel3Layout.createSequentialGroup()
+                                        .addComponent(jLabel4)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(doSign)
+                                        .addGap(0, 0, Short.MAX_VALUE))
+                                    .addComponent(jLabel15, javax.swing.GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE))
+                                .addGap(12, 12, 12))
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel3Layout.createSequentialGroup()
+                                        .addComponent(jLabel11)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(doZip))
+                                    .addComponent(jLabel17))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel19)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(jLabel12)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(doEncryptSym))
-                            .addComponent(jLabel18)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(jLabel11)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(doZip))
-                            .addComponent(jLabel17)
                             .addGroup(jPanel3Layout.createSequentialGroup()
                                 .addComponent(jLabel13)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(doSerialize))
                             .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(j3desEncryptionRadioButton)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jIDEAEncryptionRadioButton)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                                .addComponent(jLabel7)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(doEncriptAsym))
+                            .addComponent(jLabel16))))
                 .addContainerGap())
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(importElgamalKeyBut)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(genElgamalKeyBut)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(doSign, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel15))
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(doEncriptAsym, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel16)))
+                        .addGap(69, 69, 69)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(doZip, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel11))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel17))
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(doSign, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(doSerialize, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jLabel13))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel15)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dsaKeyStatusLabel))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(doEncriptAsym, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel16)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(elgamalKeyStatusLabel)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(importElgamalKeyBut)
-                    .addComponent(genElgamalKeyBut))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(doZip, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel11))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel17)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel19)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 70, Short.MAX_VALUE)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(doEncryptSym, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel12))
@@ -749,13 +721,7 @@ public class Window extends javax.swing.JFrame {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(j3desEncryptionRadioButton)
                     .addComponent(jIDEAEncryptionRadioButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(doSerialize, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel13))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel19)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
+                .addGap(4, 4, 4)
                 .addComponent(sendWarningLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -772,11 +738,16 @@ public class Window extends javax.swing.JFrame {
         jLabel21.setFont(new java.awt.Font("Calibri", 1, 24)); // NOI18N
         jLabel21.setText("Primanje Poruke");
 
-        jTextArea2.setColumns(20);
-        jTextArea2.setRows(5);
-        jScrollPane2.setViewportView(jTextArea2);
+        recieve_text_area.setColumns(20);
+        recieve_text_area.setRows(5);
+        jScrollPane2.setViewportView(recieve_text_area);
 
         jButton14.setText("Uvezi poruku");
+        jButton14.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                import_message_button(evt);
+            }
+        });
 
         jButton15.setText("Nazad");
         jButton15.addActionListener(new java.awt.event.ActionListener() {
@@ -785,29 +756,37 @@ public class Window extends javax.swing.JFrame {
             }
         });
 
-        jPasswordField1.setText("jPasswordField1");
+        decrypt_password_field.setText("jPasswordField1");
 
         jButton10.setText("Dešifruj");
+        jButton10.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                decrypt_message_button(evt);
+            }
+        });
 
         javax.swing.GroupLayout recievePanelLayout = new javax.swing.GroupLayout(recievePanel);
         recievePanel.setLayout(recievePanelLayout);
         recievePanelLayout.setHorizontalGroup(
             recievePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, recievePanelLayout.createSequentialGroup()
-                .addContainerGap(462, Short.MAX_VALUE)
-                .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton10)
+            .addGroup(recievePanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(recievePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, recievePanelLayout.createSequentialGroup()
+                        .addComponent(jButton15)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 391, Short.MAX_VALUE)
+                        .addComponent(decrypt_password_field, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton10))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, recievePanelLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jButton14)))
                 .addContainerGap())
             .addGroup(recievePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(recievePanelLayout.createSequentialGroup()
                     .addGap(7, 7, 7)
                     .addGroup(recievePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 706, Short.MAX_VALUE)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, recievePanelLayout.createSequentialGroup()
-                            .addComponent(jButton14)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton15))
                         .addGroup(recievePanelLayout.createSequentialGroup()
                             .addComponent(jLabel21)
                             .addGap(0, 0, Short.MAX_VALUE)))
@@ -815,23 +794,22 @@ public class Window extends javax.swing.JFrame {
         );
         recievePanelLayout.setVerticalGroup(
             recievePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(recievePanelLayout.createSequentialGroup()
-                .addGap(42, 42, 42)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, recievePanelLayout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(jButton14)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 320, Short.MAX_VALUE)
                 .addGroup(recievePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton10))
-                .addContainerGap(356, Short.MAX_VALUE))
+                    .addComponent(decrypt_password_field, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton10)
+                    .addComponent(jButton15))
+                .addGap(16, 16, 16))
             .addGroup(recievePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(recievePanelLayout.createSequentialGroup()
                     .addGap(19, 19, 19)
                     .addComponent(jLabel21)
                     .addGap(29, 29, 29)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                    .addGroup(recievePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jButton15)
-                        .addComponent(jButton14))
-                    .addGap(19, 19, 19)))
+                    .addGap(63, 63, 63)))
         );
 
         jCardPanel.add(recievePanel, "recieveCard");
@@ -1300,176 +1278,6 @@ public class Window extends javax.swing.JFrame {
         return message;
     }
     
-    private void sendMsgButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendMsgButActionPerformed
-        // CHECK IF PASSWORD IS OK <---------------------------------------------------
-        //trykod
-        String textMessage = msgTextArea.getText();
-
-        // Read encryption metadata
-        boolean addSignature = doSign.isSelected();
-        boolean addCompression = doZip.isSelected();
-        boolean addConversionToRadix64 = doSerialize.isSelected();
-
-        // Read sender secret key id
-        int senderKeyComboBoxIndex = fromComboBox.getSelectedIndex();
-        String senderNameAndKeyID = fromComboBox.getItemAt( senderKeyComboBoxIndex );
-        if( senderNameAndKeyID == null )
-            return;
-        
-        String senderKeyIdHexString = senderNameAndKeyID.split( "\\|" )[ 1 ];
-        long senderKeyID = Utils.hexStringToKeyId( senderKeyIdHexString );
-
-        // Read sender secret key
-        PGPSecretKeyRing senderSecretKeyring;
-        PGPSecretKey senderSecretKey;
-        senderSecretKeyring = sKeyChain.getSecretKeyRing( senderKeyID );
-        Iterator<PGPSecretKey> keyIter = senderSecretKeyring.getSecretKeys();
-        senderSecretKey = keyIter.next();
-
-        // Read sender passphrase
-        char[] senderPassphrase = sendPasswordField.getPassword();
-
-        try {
-            if( addSignature && !SecretKeyChain.isValidPassphrase( senderSecretKeyring, 0, senderPassphrase ) )
-            {
-                return;
-            }
-        } catch (PGPException ex) {
-            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        // check if there is at least one selected recepient
-        for( int i = 0; i < toComboBox.getItemCount(); i++ )
-        {
-            // Read receiver public key id
-            String receiverNameEmailAndKeyID = toComboBox.getItemAt( i );
-            if( "x ".equals( receiverNameEmailAndKeyID.substring( 0, 2 ) ) )
-            {
-                break;
-            }
-            if( i == toComboBox.getItemCount() - 1 )
-                return;
-        }
-
-        // get the file path
-        String selectedFilePath = Utils.getUserSelectedFilePath( Utils.SAVE_DIALOG, Utils.PGP_MESSAGE_FILE );
-        if( selectedFilePath == null )
-            return;
-
-        int sentMessagesCount = 0;
-        for( int i = 0; i < toComboBox.getItemCount(); i++ )
-        {
-            // Read sender email
-            String senderNameEmailAndKeyID = fromComboBox.getItemAt( fromComboBox.getSelectedIndex() );
-            
-            // Read receiver public key id
-            String receiverNameEmailAndKeyID = toComboBox.getItemAt( i );
-            String originalReceiverNameEmailAndKeyID = toComboBox.getItemAt( i );
-            originalReceiverNameEmailAndKeyID = originalReceiverNameEmailAndKeyID.substring(2, originalReceiverNameEmailAndKeyID.length());
-            if( !"x ".equals( receiverNameEmailAndKeyID.substring( 0, 2 ) ) )
-            {
-                continue;
-            }
-            // remove the selection symbol from the receiver name, email and key id
-            receiverNameEmailAndKeyID = receiverNameEmailAndKeyID.substring( 2 );
-
-            // get the receiver key id
-            String receiverKeyIdHexString = receiverNameEmailAndKeyID.split( "> \\| " )[ 1 ];
-            long receiverKeyID = Utils.hexStringToKeyId( receiverKeyIdHexString );
-
-            // fix the receiver name, email and key id string
-            receiverNameEmailAndKeyID = receiverNameEmailAndKeyID.replaceAll( "<", "[" );
-            receiverNameEmailAndKeyID = receiverNameEmailAndKeyID.replaceAll( ">", "]" );
-            receiverNameEmailAndKeyID = receiverNameEmailAndKeyID.replaceAll( "\\|", "." );
-
-            // Read receiver public key
-            PGPPublicKey receiverPublicKey;
-            PGPPublicKeyRing receiverKeyRing = pKeyChain.getPublicKeyRing( receiverKeyID );
-            Iterator<PGPPublicKey> pubKeyIter = receiverKeyRing.getPublicKeys();
-            pubKeyIter.next();   // skip the DSA signing key, and use the ElGamal encryption key
-            receiverPublicKey = pubKeyIter.next();
-
-            // Read encryption algorithm
-            PGP.EncryptionAlgorithm encryptionAlgorithm = PGP.EncryptionAlgorithm.NONE;
-
-            if(j3desEncryptionRadioButton.isSelected())encryptionAlgorithm = PGP.EncryptionAlgorithm.ELGAMAL_3DES;
-            else if(jIDEAEncryptionRadioButton.isSelected())encryptionAlgorithm = PGP.EncryptionAlgorithm.ELGAMAL_IDEA;
-            if(doEncryptSym.isSelected()) encryptionAlgorithm = PGP.EncryptionAlgorithm.NONE;
-            
-            byte[] byteMessage = new SimpleRFC288Message(senderNameEmailAndKeyID, originalReceiverNameEmailAndKeyID, textMessage).ConvertToSimplifiedRFC822().getBytes();
-
-            // Encryption
-            byte[] encryptedMessage = null;
-            try {
-                encryptedMessage = createPgpMessage(
-                        byteMessage,
-                        senderSecretKey,
-                        receiverPublicKey,
-                        encryptionAlgorithm,
-                        senderPassphrase,
-                        addSignature,
-                        addCompression,
-                        addConversionToRadix64 );
-            } catch (IOException ex) {
-                Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-            // Append receiver name to file path
-            String filePath = selectedFilePath.replaceAll( "(\\..*)$", " . " + receiverNameEmailAndKeyID + "$1" );
-            Utils.writeToFile( filePath, encryptedMessage );
-
-            sentMessagesCount++;
-            /*
-        //trykodends
-        try {
-            // START SEND
-            byte[] msg = msgTextArea.getText().getBytes();
-            msg = PGP.convertToPGP(msg);
-            if (doSign.isSelected()) {
-                char[]  password = sendPasswordField.getPassword();
-                if (SecretKeyChain.isValidPassphrase(secretKeyring, WIDTH, password))
-                    msg = PGP.sign(msg, senderSecretKey_, password);
-                else {
-                    sendWarningLabel.setText("Wrong password!");
-                }
-            }
-            if(doZip.isSelected()) {
-                msg = PGP.zip(msg);
-            }
-            if(doEncryptSym.isSelected()) {
-                int algorithm = PGPEncryptedData.TRIPLE_DES;
-                if (jIDEAEncryptionRadioButton.isSelected()) algorithm = PGPEncryptedData.IDEA;
-                msg = PGP.encrypt(msg, algorithm, receiverPublicKey);
-            }
-            
-            try {
-                Path directory = null;
-                JFileChooser chooser = new JFileChooser(startingFolder);
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("GPG message files", "gpg");
-                chooser.setFileFilter(filter);
-                int returnVal = chooser.showOpenDialog(new JPanel());
-                if(returnVal == JFileChooser.APPROVE_OPTION) {
-                    directory = Paths.get(chooser.getSelectedFile().getPath());
-                    startingFolder = chooser.getSelectedFile().getParentFile().getPath();
-                }
-
-                Files.write( directory, msg );
-            } catch (IOException ex) {
-                Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            // END SEND
-            CardLayout card = (CardLayout)jCardPanel.getLayout();
-            card.show(jCardPanel, "homeCard");
-
-            sendPanel.setSelectedIndex(0);
-            sendWarningLabel.setText("");
-        } catch (Exception ex) {
-            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
-            sendWarningLabel.setText("Error");
-        }
-            */
-        }
-    }//GEN-LAST:event_sendMsgButActionPerformed
 
     private void doEncryptSymActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doEncryptSymActionPerformed
         doEncriptAsym.setSelected(doEncryptSym.isSelected());
@@ -1796,6 +1604,252 @@ public class Window extends javax.swing.JFrame {
         update_email_to();
     }//GEN-LAST:event_sendPanelComponentShown
 
+    private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
+        CardLayout card = (CardLayout)jCardPanel.getLayout();
+        card.show(jCardPanel, "homeCard");
+
+        sendPanel.setSelectedIndex(0);
+        sendWarningLabel.setText("");
+    }//GEN-LAST:event_jButton13ActionPerformed
+
+    private void sendMsgButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendMsgButActionPerformed
+        // CHECK IF PASSWORD IS OK <---------------------------------------------------
+        //trykod
+        String textMessage = msgTextArea.getText();
+
+        // Read encryption metadata
+        boolean addSignature = doSign.isSelected();
+        boolean addCompression = doZip.isSelected();
+        boolean addConversionToRadix64 = doSerialize.isSelected();
+
+        // Read sender secret key id
+        int senderKeyComboBoxIndex = fromComboBox.getSelectedIndex();
+        String senderNameAndKeyID = fromComboBox.getItemAt( senderKeyComboBoxIndex );
+        if( senderNameAndKeyID == null )
+        return;
+
+        String senderKeyIdHexString = senderNameAndKeyID.split( "\\|" )[ 1 ];
+        long senderKeyID = Utils.hexStringToKeyId( senderKeyIdHexString );
+
+        // Read sender secret key
+        PGPSecretKeyRing senderSecretKeyring;
+        PGPSecretKey senderSecretKey;
+        senderSecretKeyring = sKeyChain.getSecretKeyRing( senderKeyID );
+        Iterator<PGPSecretKey> keyIter = senderSecretKeyring.getSecretKeys();
+        senderSecretKey = keyIter.next();
+
+        // Read sender passphrase
+        char[] senderPassphrase = sendPasswordField.getPassword();
+
+        try {
+            if( addSignature && !SecretKeyChain.isValidPassphrase( senderSecretKeyring, 0, senderPassphrase ) )
+            {
+                return;
+            }
+        } catch (PGPException ex) {
+            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        // check if there is at least one selected recepient
+        for( int i = 0; i < toComboBox.getItemCount(); i++ )
+        {
+            // Read receiver public key id
+            String receiverNameEmailAndKeyID = toComboBox.getItemAt( i );
+            if( "x ".equals( receiverNameEmailAndKeyID.substring( 0, 2 ) ) )
+            {
+                break;
+            }
+            if( i == toComboBox.getItemCount() - 1 )
+            return;
+        }
+
+        // get the file path
+        String selectedFilePath = Utils.getUserSelectedFilePath( Utils.SAVE_DIALOG, Utils.PGP_MESSAGE_FILE );
+        if( selectedFilePath == null )
+        return;
+
+        int sentMessagesCount = 0;
+        for( int i = 0; i < toComboBox.getItemCount(); i++ )
+        {
+            // Read sender email
+            String senderNameEmailAndKeyID = fromComboBox.getItemAt( fromComboBox.getSelectedIndex() );
+
+            // Read receiver public key id
+            String receiverNameEmailAndKeyID = toComboBox.getItemAt( i );
+            String originalReceiverNameEmailAndKeyID = toComboBox.getItemAt( i );
+            originalReceiverNameEmailAndKeyID = originalReceiverNameEmailAndKeyID.substring(2, originalReceiverNameEmailAndKeyID.length());
+            if( !"x ".equals( receiverNameEmailAndKeyID.substring( 0, 2 ) ) )
+            {
+                continue;
+            }
+            // remove the selection symbol from the receiver name, email and key id
+            receiverNameEmailAndKeyID = receiverNameEmailAndKeyID.substring( 2 );
+
+            // get the receiver key id
+            String receiverKeyIdHexString = receiverNameEmailAndKeyID.split( "> \\| " )[ 1 ];
+            long receiverKeyID = Utils.hexStringToKeyId( receiverKeyIdHexString );
+
+            // fix the receiver name, email and key id string
+            receiverNameEmailAndKeyID = receiverNameEmailAndKeyID.replaceAll( "<", "[" );
+            receiverNameEmailAndKeyID = receiverNameEmailAndKeyID.replaceAll( ">", "]" );
+            receiverNameEmailAndKeyID = receiverNameEmailAndKeyID.replaceAll( "\\|", "." );
+
+            // Read receiver public key
+            PGPPublicKey receiverPublicKey;
+            PGPPublicKeyRing receiverKeyRing = pKeyChain.getPublicKeyRing( receiverKeyID );
+            Iterator<PGPPublicKey> pubKeyIter = receiverKeyRing.getPublicKeys();
+            pubKeyIter.next();   // skip the DSA signing key, and use the ElGamal encryption key
+            receiverPublicKey = pubKeyIter.next();
+
+            // Read encryption algorithm
+            PGP.EncryptionAlgorithm encryptionAlgorithm = PGP.EncryptionAlgorithm.NONE;
+
+            if(j3desEncryptionRadioButton.isSelected())encryptionAlgorithm = PGP.EncryptionAlgorithm.ELGAMAL_3DES;
+            else if(jIDEAEncryptionRadioButton.isSelected())encryptionAlgorithm = PGP.EncryptionAlgorithm.ELGAMAL_IDEA;
+            if(doEncryptSym.isSelected()) encryptionAlgorithm = PGP.EncryptionAlgorithm.NONE;
+
+            byte[] byteMessage = new SimpleRFC288Message(senderNameEmailAndKeyID, originalReceiverNameEmailAndKeyID, textMessage).ConvertToSimplifiedRFC822().getBytes();
+
+            // Encryption
+            byte[] encryptedMessage = null;
+            try {
+                encryptedMessage = createPgpMessage(
+                    byteMessage,
+                    senderSecretKey,
+                    receiverPublicKey,
+                    encryptionAlgorithm,
+                    senderPassphrase,
+                    addSignature,
+                    addCompression,
+                    addConversionToRadix64 );
+            } catch (IOException ex) {
+                Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            // Append receiver name to file path
+            String filePath = selectedFilePath.replaceAll( "(\\..*)$", " . " + receiverNameEmailAndKeyID + "$1" );
+            Utils.writeToFile( filePath, encryptedMessage );
+
+            sentMessagesCount++;
+            /*
+            //trykodends
+            try {
+                // START SEND
+                byte[] msg = msgTextArea.getText().getBytes();
+                msg = PGP.convertToPGP(msg);
+                if (doSign.isSelected()) {
+                    char[]  password = sendPasswordField.getPassword();
+                    if (SecretKeyChain.isValidPassphrase(secretKeyring, WIDTH, password))
+                    msg = PGP.sign(msg, senderSecretKey_, password);
+                    else {
+                        sendWarningLabel.setText("Wrong password!");
+                    }
+                }
+                if(doZip.isSelected()) {
+                    msg = PGP.zip(msg);
+                }
+                if(doEncryptSym.isSelected()) {
+                    int algorithm = PGPEncryptedData.TRIPLE_DES;
+                    if (jIDEAEncryptionRadioButton.isSelected()) algorithm = PGPEncryptedData.IDEA;
+                    msg = PGP.encrypt(msg, algorithm, receiverPublicKey);
+                }
+
+                try {
+                    Path directory = null;
+                    JFileChooser chooser = new JFileChooser(startingFolder);
+                    FileNameExtensionFilter filter = new FileNameExtensionFilter("GPG message files", "gpg");
+                    chooser.setFileFilter(filter);
+                    int returnVal = chooser.showOpenDialog(new JPanel());
+                    if(returnVal == JFileChooser.APPROVE_OPTION) {
+                        directory = Paths.get(chooser.getSelectedFile().getPath());
+                        startingFolder = chooser.getSelectedFile().getParentFile().getPath();
+                    }
+
+                    Files.write( directory, msg );
+                } catch (IOException ex) {
+                    Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                // END SEND
+                CardLayout card = (CardLayout)jCardPanel.getLayout();
+                card.show(jCardPanel, "homeCard");
+
+                sendPanel.setSelectedIndex(0);
+                sendWarningLabel.setText("");
+            } catch (Exception ex) {
+                Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+                sendWarningLabel.setText("Error");
+            }
+            */
+        }
+    }//GEN-LAST:event_sendMsgButActionPerformed
+
+    private void doEncryptSymActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doEncryptSymActionPerformed
+        doEncriptAsym.setSelected(doEncryptSym.isSelected());
+    }//GEN-LAST:event_doEncryptSymActionPerformed
+
+    private void doEncriptAsymActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doEncriptAsymActionPerformed
+        doEncryptSym.setSelected(doEncriptAsym.isSelected());
+    }//GEN-LAST:event_doEncriptAsymActionPerformed
+
+    private void decrypt_message_button(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_decrypt_message_button
+        
+        char[] password = decrypt_password_field.getPassword();
+
+        // TODO(uros): Check if the password is valid
+        try
+        {
+            PGP.decryptPgpMessage( password, this.pgp_mess );
+
+            System.out.println( "pgpMessage.senderSecretKeyId: " + this.pgp_mess.senderSecretKeyId );
+
+            /*if( pgpMessage.senderSecretKeyId != 0 )
+            {
+                jRecv_FromTextbox.setText( ( String )PGPKeys
+                        .getPublicKeyRing( pgpMessage.senderSecretKeyId )
+                        .getPublicKey()
+                        .getUserIDs()
+                        .next() );
+            }*/
+            
+            SimpleRFC288Message rm = SimpleRFC288Message.fromSimplifiedRFC822(new String(this.pgp_mess.decryptedMessage));
+            recieve_text_area.setText(rm.message);
+        } catch (IOException ex) {
+            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (PGPException ex) {
+            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_decrypt_message_button
+
+    private void import_message_button(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_import_message_button
+        String encryptedFilePath = Utils.getUserSelectedFilePath( Utils.OPEN_DIALOG, Utils.PGP_MESSAGE_FILE );
+        if( encryptedFilePath == null )
+            return;
+
+        this.pgp_mess = new PGP.PgpMessage();
+
+        // Read encrypted message
+        this.pgp_mess.encryptedMessage = Utils.readFromFile( encryptedFilePath );
+
+        // Read PGP message (without decrypting it)
+        try
+        {
+            PGP.readPgpMessage( this.pgp_mess );
+            
+            if( this.pgp_mess.isEncrypted )
+            {
+                decrypt_password_field.setEditable( true );
+                decrypt_password_field.setEnabled( true );
+            }
+            else
+            {
+                SimpleRFC288Message rm = SimpleRFC288Message.fromSimplifiedRFC822(new String(this.pgp_mess.decryptedMessage));
+                recieve_text_area.setText(rm.message);
+            }
+        } catch (Exception ex) {
+            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_import_message_button
+
     /**
      * @param args the command line arguments
      */
@@ -1832,22 +1886,19 @@ public class Window extends javax.swing.JFrame {
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPasswordField decrypt_password_field;
     private javax.swing.JCheckBox doEncriptAsym;
     private javax.swing.JCheckBox doEncryptSym;
     private javax.swing.JCheckBox doSerialize;
     private javax.swing.JCheckBox doSign;
     private javax.swing.JCheckBox doZip;
     private javax.swing.ButtonGroup dsaKeySizeBG;
-    private javax.swing.JLabel dsaKeyStatusLabel;
     private javax.swing.ButtonGroup elgamalKeySizeBG;
-    private javax.swing.JLabel elgamalKeyStatusLabel;
     private javax.swing.JTextField emailField;
     private javax.swing.ButtonGroup encriptionAlgBG;
     private javax.swing.JComboBox<String> fromComboBox;
-    private javax.swing.JButton genElgamalKeyBut;
     private javax.swing.JDialog generatorDialog;
     private javax.swing.JPanel homePanel;
-    private javax.swing.JButton importElgamalKeyBut;
     private javax.swing.JRadioButton j3desEncryptionRadioButton;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton10;
@@ -1896,7 +1947,6 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JPasswordField jPasswordField1;
     private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JRadioButton jRadioButton2;
     private javax.swing.JRadioButton jRadioButton3;
@@ -1906,7 +1956,6 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
-    private javax.swing.JTextArea jTextArea2;
     private javax.swing.JTabbedPane keyringPanel;
     private javax.swing.JTextArea msgTextArea;
     private javax.swing.JTextField nameField;
@@ -1918,11 +1967,11 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JPanel publicKeyPanel;
     private javax.swing.JTable publicKeyTable;
     private javax.swing.JPanel recievePanel;
+    private javax.swing.JTextArea recieve_text_area;
     private javax.swing.JButton sendMsgBut;
     private javax.swing.JTabbedPane sendPanel;
     private javax.swing.JPasswordField sendPasswordField;
     private javax.swing.JLabel sendWarningLabel;
-    private javax.swing.JButton toAddBut;
     private javax.swing.JComboBox<String> toComboBox;
     // End of variables declaration//GEN-END:variables
 }

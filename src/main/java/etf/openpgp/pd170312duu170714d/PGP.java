@@ -58,6 +58,55 @@ import org.bouncycastle.openpgp.operator.jcajce.JcePublicKeyKeyEncryptionMethodG
 import org.bouncycastle.util.io.Streams;
 
 public class PGP {
+    
+    public static class PgpMessage
+    {
+        public byte[] encryptedMessage = null;
+        public byte[] decryptedMessage = null;
+        public long senderSecretKeyId = 0;
+        public long receiverPublicKeyId = 0;
+        public String encryptionAlgorithm = "";
+        public boolean isEncrypted = false;
+        public boolean isSigned = false;
+        public boolean isCompressed = false;
+        public boolean isRadix64Encoded = false;
+        public boolean isIntegrityVerified = false;
+        public boolean isSignatureVerified = false;
+    }
+        private static class PgpDecryptionState
+    {
+        PGPEncryptedDataList encryptedDataList = null;
+        Object pgpObject = null;
+        Object currentMessage = null;
+        PGPObjectFactory pgpObjectFactory = null;
+        PGPPublicKeyEncryptedData publicKeyEncryptedData = null;
+        PGPOnePassSignature onePassSignature = null;
+        PGPPublicKey signerPublicKey = null;
+    }
+    
+        public static void readPgpMessage( PgpMessage pgpMessage ) throws Exception
+    {
+        InputStream inputStream = new ByteArrayInputStream( pgpMessage.encryptedMessage );
+        inputStream = PGPUtil.getDecoderStream( new BufferedInputStream( inputStream ) );
+
+        PgpDecryptionState pds = new PgpDecryptionState();
+        checkIfEncrypted( inputStream, pgpMessage, pds );
+
+        // If the message is not encrpyted, decoode it to extract all the data
+        // without a passphrase
+        if( !pgpMessage.isEncrypted )
+        {
+            pgpMessage.decryptedMessage = pgpMessage.encryptedMessage;
+            decryptPgpMessage( null, pgpMessage );
+        }
+        // If the message is encrypted, get the `To` information so that user
+        // know which passphrase to enter
+        else
+        {
+            getPublicKeyId( pgpMessage, pds );
+        }
+    }
+    
     public static byte[] convertToPGP(byte[] msg_) throws Exception {
         try {
             OutputStream packetStream;
@@ -134,7 +183,34 @@ public class PGP {
         }
         throw(new Exception("Couldn't zip data packet!"));
     }
+    private static void checkIfEncrypted(
+            InputStream inputStream,
+            PgpMessage pgpMessage,
+            PgpDecryptionState pgpDecryptionState ) throws IOException
+    {
+        PGPObjectFactory pgpObjectFactory = new PGPObjectFactory( inputStream, new BcKeyFingerprintCalculator() );
+        pgpDecryptionState.pgpObject = pgpObjectFactory.nextObject();
 
+        // Determine if the message is encrypted
+        pgpMessage.isEncrypted = false;
+        if( pgpDecryptionState.pgpObject instanceof PGPEncryptedDataList )
+        {
+            pgpDecryptionState.encryptedDataList = ( PGPEncryptedDataList )pgpDecryptionState.pgpObject;
+            pgpMessage.isEncrypted = true;
+        }
+        else if( pgpDecryptionState.pgpObject instanceof PGPMarker )
+        {
+            pgpDecryptionState.pgpObject = pgpObjectFactory.nextObject();
+            if( pgpDecryptionState.pgpObject instanceof PGPEncryptedDataList )
+            {
+                pgpDecryptionState.encryptedDataList = ( PGPEncryptedDataList )pgpDecryptionState.pgpObject;
+                pgpMessage.isEncrypted = true;
+            }
+        }
+    }
+
+    
+    
     public static byte[] encrypt(byte[] msg_, int algorithm_, PGPPublicKey receiverPublicKey) throws Exception {
         try {
             OutputStream packetStream;
@@ -156,6 +232,20 @@ public class PGP {
         throw(new Exception("Couldn't encrypt data packet!"));
     }
 
+    public static enum EncryptionAlgorithm
+    {
+        ELGAMAL_3DES( PGPEncryptedData.TRIPLE_DES ),
+        ELGAMAL_IDEA( PGPEncryptedData.IDEA ),
+        NONE( PGPEncryptedData.NULL );
+
+        public final int id;
+
+        private EncryptionAlgorithm( int id )
+        {
+            this.id = id;
+        }
+    }
+    
     public static byte[] serialize(byte[] msg_) throws Exception {
         try {
             ArmoredOutputStream packetStream;

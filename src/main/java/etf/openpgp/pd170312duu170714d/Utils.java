@@ -7,6 +7,7 @@ package etf.openpgp.pd170312duu170714d;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -173,6 +174,23 @@ public class Utils {
             Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+    }
+    
+    public static byte[] readFromFile( String filePath )
+    {
+        File file = new File( filePath );
+        try(FileInputStream fin = new FileInputStream( file );)
+        {
+            byte fileContent[] = new byte[( int )file.length()];
+            fin.read( fileContent );
+            return fileContent;
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return null;
     }
     
     public static byte[] encodeAsRadix64(
