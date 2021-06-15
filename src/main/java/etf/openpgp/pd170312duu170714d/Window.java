@@ -6,9 +6,7 @@
 package etf.openpgp.pd170312duu170714d;
 
 import java.awt.CardLayout;
-import java.awt.Color;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -22,7 +20,6 @@ import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
@@ -33,7 +30,6 @@ import org.bouncycastle.openpgp.PGPCompressedDataGenerator;
 import org.bouncycastle.openpgp.PGPEncryptedData;
 import org.bouncycastle.openpgp.PGPEncryptedDataGenerator;
 import org.bouncycastle.openpgp.PGPException;
-import org.bouncycastle.openpgp.PGPKeyRingGenerator;
 import org.bouncycastle.openpgp.PGPLiteralData;
 import org.bouncycastle.openpgp.PGPLiteralDataGenerator;
 import org.bouncycastle.openpgp.PGPOnePassSignature;
@@ -49,7 +45,6 @@ import org.bouncycastle.openpgp.operator.jcajce.JcaPGPContentSignerBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcePBESecretKeyDecryptorBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcePGPDataEncryptorBuilder;
 import org.bouncycastle.openpgp.operator.jcajce.JcePublicKeyKeyEncryptionMethodGenerator;
-import org.bouncycastle.util.encoders.Base64;
 
 /**
  *
@@ -62,6 +57,8 @@ public class Window extends javax.swing.JFrame {
     private SecretKeyChain sKeyChain = new SecretKeyChain();
     private PublicKeyChain pKeyChain = new PublicKeyChain();
     private PGP.PgpMessage pgp_mess;
+    private String readingFile = "";
+    
     public Window() {
         initComponents();
         Security.addProvider(new BouncyCastleProvider());
@@ -192,7 +189,7 @@ public class Window extends javax.swing.JFrame {
         recievePanel = new javax.swing.JPanel();
         jLabel21 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        recieve_text_area = new javax.swing.JTextArea();
+        recieveTextArea = new javax.swing.JTextArea();
         jButton14 = new javax.swing.JButton();
         jButton15 = new javax.swing.JButton();
         decrypt_password_field = new javax.swing.JPasswordField();
@@ -448,11 +445,6 @@ public class Window extends javax.swing.JFrame {
 
         jCardPanel.add(homePanel, "homeCard");
 
-        sendPanel.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentShown(java.awt.event.ComponentEvent evt) {
-                sendPanelComponentShown(evt);
-            }
-        });
 
         jLabel2.setFont(new java.awt.Font("Calibri", 1, 24)); // NOI18N
         jLabel2.setText("Sadržaj Poruke");
@@ -738,14 +730,14 @@ public class Window extends javax.swing.JFrame {
         jLabel21.setFont(new java.awt.Font("Calibri", 1, 24)); // NOI18N
         jLabel21.setText("Primanje Poruke");
 
-        recieve_text_area.setColumns(20);
-        recieve_text_area.setRows(5);
-        jScrollPane2.setViewportView(recieve_text_area);
+        recieveTextArea.setColumns(20);
+        recieveTextArea.setRows(5);
+        jScrollPane2.setViewportView(recieveTextArea);
 
         jButton14.setText("Uvezi poruku");
         jButton14.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                import_message_button(evt);
+                jButton14ActionPerformed(evt);
             }
         });
 
@@ -1279,17 +1271,17 @@ public class Window extends javax.swing.JFrame {
     }
     
 
-    private void doEncryptSymActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doEncryptSymActionPerformed
+    private void doEncryptSymActionPerformed(java.awt.event.ActionEvent evt) {                                             
         doEncriptAsym.setSelected(doEncryptSym.isSelected());
-    }//GEN-LAST:event_doEncryptSymActionPerformed
+    }                                            
 
     private void genElgamalKeyButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_genElgamalKeyButActionPerformed
         generatorDialog.setVisible(true);
     }//GEN-LAST:event_genElgamalKeyButActionPerformed
 
-    private void doEncriptAsymActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doEncriptAsymActionPerformed
+    private void doEncriptAsymActionPerformed(java.awt.event.ActionEvent evt) {                                              
         doEncryptSym.setSelected(doEncriptAsym.isSelected());
-    }//GEN-LAST:event_doEncriptAsymActionPerformed
+    }                                             
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         sendPanel.setSelectedIndex(1);
@@ -1343,8 +1335,6 @@ public class Window extends javax.swing.JFrame {
 
         update_private_key_table();
         update_public_key_table();
-        elgamalKeyStatusLabel.setForeground(new Color(25,190,83));
-        elgamalKeyStatusLabel.setText("Ključ uspešno generisan!");
     }//GEN-LAST:event_generate_private_keysActionPerformed
 
     private void update_private_key_table()
@@ -1479,13 +1469,13 @@ public class Window extends javax.swing.JFrame {
         sendWarningLabel.setText("");
     }//GEN-LAST:event_jButton17ActionPerformed
 
-    private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
+    private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {                                          
         CardLayout card = (CardLayout)jCardPanel.getLayout();
         card.show(jCardPanel, "homeCard");
 
         sendPanel.setSelectedIndex(0);
         sendWarningLabel.setText("");
-    }//GEN-LAST:event_jButton13ActionPerformed
+    }                                         
 
     private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
         generatorDialog.setVisible(true);
@@ -1597,20 +1587,6 @@ public class Window extends javax.swing.JFrame {
         update_public_key_table();
         
     }//GEN-LAST:event_delete_pub_keyActionPerformed
-
-    private void sendPanelComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_sendPanelComponentShown
-        // TODO add your handling code here:
-        update_email_from();
-        update_email_to();
-    }//GEN-LAST:event_sendPanelComponentShown
-
-    private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
-        CardLayout card = (CardLayout)jCardPanel.getLayout();
-        card.show(jCardPanel, "homeCard");
-
-        sendPanel.setSelectedIndex(0);
-        sendWarningLabel.setText("");
-    }//GEN-LAST:event_jButton13ActionPerformed
 
     private void sendMsgButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendMsgButActionPerformed
         // CHECK IF PASSWORD IS OK <---------------------------------------------------
@@ -1783,22 +1759,13 @@ public class Window extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_sendMsgButActionPerformed
 
-    private void doEncryptSymActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doEncryptSymActionPerformed
-        doEncriptAsym.setSelected(doEncryptSym.isSelected());
-    }//GEN-LAST:event_doEncryptSymActionPerformed
-
-    private void doEncriptAsymActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doEncriptAsymActionPerformed
-        doEncryptSym.setSelected(doEncriptAsym.isSelected());
-    }//GEN-LAST:event_doEncriptAsymActionPerformed
-
     private void decrypt_message_button(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_decrypt_message_button
         
         char[] password = decrypt_password_field.getPassword();
 
         // TODO(uros): Check if the password is valid
-        try
-        {
-            PGP.decryptPgpMessage( password, this.pgp_mess );
+
+            //PGP.decryptPgpMessage( password, this.pgp_mess );
 
             System.out.println( "pgpMessage.senderSecretKeyId: " + this.pgp_mess.senderSecretKeyId );
 
@@ -1812,12 +1779,8 @@ public class Window extends javax.swing.JFrame {
             }*/
             
             SimpleRFC288Message rm = SimpleRFC288Message.fromSimplifiedRFC822(new String(this.pgp_mess.decryptedMessage));
-            recieve_text_area.setText(rm.message);
-        } catch (IOException ex) {
-            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (PGPException ex) {
-            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
-        }
+            recieveTextArea.setText(rm.message);
+
     }//GEN-LAST:event_decrypt_message_button
 
     private void import_message_button(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_import_message_button
@@ -1843,12 +1806,40 @@ public class Window extends javax.swing.JFrame {
             else
             {
                 SimpleRFC288Message rm = SimpleRFC288Message.fromSimplifiedRFC822(new String(this.pgp_mess.decryptedMessage));
-                recieve_text_area.setText(rm.message);
+                recieveTextArea.setText(rm.message);
             }
         } catch (Exception ex) {
             Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_import_message_button
+
+    private void jButton14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton14ActionPerformed
+        try {
+            Path directory = null;
+            JFileChooser chooser = new JFileChooser(startingFolder);
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("PGP Message Files", "gpg");
+            chooser.setFileFilter(filter);
+            int returnVal = chooser.showOpenDialog(new JPanel());
+            if(returnVal == JFileChooser.APPROVE_OPTION) {
+                directory = Paths.get(chooser.getSelectedFile().getPath());
+                startingFolder = chooser.getSelectedFile().getParentFile().getPath();
+            }
+            
+            String file = Files.readString(directory);
+            try {
+                byte[] ret = PGP.decryptFile(file, sKeyChain, null);
+                recieveTextArea.setText(new String(ret));
+                
+            } catch (IllegalArgumentException ex) {
+                recieveTextArea.setText("Poruka je enkriptovana!");
+                return;
+            }
+            
+        } catch (IOException ex) {
+            Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButton14ActionPerformed
+
 
     /**
      * @param args the command line arguments
@@ -1967,7 +1958,7 @@ public class Window extends javax.swing.JFrame {
     private javax.swing.JPanel publicKeyPanel;
     private javax.swing.JTable publicKeyTable;
     private javax.swing.JPanel recievePanel;
-    private javax.swing.JTextArea recieve_text_area;
+    private javax.swing.JTextArea recieveTextArea;
     private javax.swing.JButton sendMsgBut;
     private javax.swing.JTabbedPane sendPanel;
     private javax.swing.JPasswordField sendPasswordField;
