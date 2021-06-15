@@ -197,7 +197,7 @@ public class Window extends javax.swing.JFrame {
         recievePanel = new javax.swing.JPanel();
         jLabel21 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        recieve_text_area = new javax.swing.JTextArea();
+        recieveTextArea = new javax.swing.JTextArea();
         jButton14 = new javax.swing.JButton();
         jButton15 = new javax.swing.JButton();
         decrypt_password_field = new javax.swing.JPasswordField();
@@ -743,9 +743,9 @@ public class Window extends javax.swing.JFrame {
         jLabel21.setFont(new java.awt.Font("Calibri", 1, 24)); // NOI18N
         jLabel21.setText("Primanje Poruke");
 
-        recieve_text_area.setColumns(20);
-        recieve_text_area.setRows(5);
-        jScrollPane2.setViewportView(recieve_text_area);
+        recieveTextArea.setColumns(20);
+        recieveTextArea.setRows(5);
+        jScrollPane2.setViewportView(recieveTextArea);
 
         jButton14.setText("Uvezi poruku");
         jButton14.addActionListener(new java.awt.event.ActionListener() {
@@ -1316,7 +1316,7 @@ public class Window extends javax.swing.JFrame {
 
             if( pgpMessage.isEncrypted )
             {
-                recieve_text_area.setText("???" );
+                recieveTextArea.setText("???" );
 
                 decrypt_password_field.setEditable( true );
                 decrypt_password_field.setEnabled( true );
@@ -1324,7 +1324,7 @@ public class Window extends javax.swing.JFrame {
             else
             {
                 SimpleRFC288Message rm = SimpleRFC288Message.fromSimplifiedRFC822(new String(pgpMessage.decryptedMessage));
-                recieve_text_area.setText(rm.message);
+                recieveTextArea.setText(rm.message);
             }
         } catch (Exception ex) {
             Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
@@ -1619,13 +1619,6 @@ public class Window extends javax.swing.JFrame {
         update_email_to();
     }//GEN-LAST:event_sendPanelComponentShown
 
-    private void jButton13ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton13ActionPerformed
-        CardLayout card = (CardLayout)jCardPanel.getLayout();
-        card.show(jCardPanel, "homeCard");
-
-        sendPanel.setSelectedIndex(0);
-        sendWarningLabel.setText("");
-    }//GEN-LAST:event_jButton13ActionPerformed
 
     private void sendMsgButActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendMsgButActionPerformed
         // CHECK IF PASSWORD IS OK <---------------------------------------------------
@@ -1798,14 +1791,6 @@ public class Window extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_sendMsgButActionPerformed
 
-    private void doEncryptSymActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doEncryptSymActionPerformed
-        doEncriptAsym.setSelected(doEncryptSym.isSelected());
-    }//GEN-LAST:event_doEncryptSymActionPerformed
-
-    private void doEncriptAsymActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doEncriptAsymActionPerformed
-        doEncryptSym.setSelected(doEncriptAsym.isSelected());
-    }//GEN-LAST:event_doEncriptAsymActionPerformed
-
     private void decrypt_message_button(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_decrypt_message_button
         
         char[] password = decrypt_password_field.getPassword();
@@ -1846,7 +1831,7 @@ public class Window extends javax.swing.JFrame {
             System.out.println( "this.pgp_mess.senderSecretKeyId: " + this.pgp_mess.senderSecretKeyId );
             
             SimpleRFC288Message rm = SimpleRFC288Message.fromSimplifiedRFC822(new String(this.pgp_mess.decryptedMessage));
-            recieve_text_area.setText(rm.message);
+            recieveTextArea.setText(rm.message);
         } catch (IOException ex) {
             Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
         } catch (PGPException ex) {
@@ -1867,7 +1852,7 @@ public class Window extends javax.swing.JFrame {
             
             InputStream inputStream = new ByteArrayInputStream( this.pgp_mess.encryptedMessage );
             inputStream = PGPUtil.getDecoderStream( new BufferedInputStream( inputStream ) );
-            recieve_text_area.setText(Base64.toBase64String(this.pgp_mess.encryptedMessage));
+            recieveTextArea.setText(Base64.toBase64String(this.pgp_mess.encryptedMessage));
         } catch (IOException ex) {
             Logger.getLogger(Window.class.getName()).log(Level.SEVERE, null, ex);
         }

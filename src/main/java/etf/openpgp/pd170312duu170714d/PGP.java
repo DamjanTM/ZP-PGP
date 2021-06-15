@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.io.IOUtils;
 import org.bouncycastle.bcpg.ArmoredInputStream;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.HashAlgorithmTags;
@@ -73,7 +74,7 @@ public class PGP {
         public boolean isIntegrityVerified = false;
         public boolean isSignatureVerified = false;
     }
-        private static class PgpDecryptionState
+        public static class PgpDecryptionState
     {
         PGPEncryptedDataList encryptedDataList = null;
         Object pgpObject = null;
@@ -260,8 +261,6 @@ public class PGP {
         {
             try {
                 pgpMessage.decryptedMessage = IOUtils.toByteArray( (( PGPLiteralData )pds.currentMessage).getInputStream() );
-                
-                
                 // Read signature
                 if( pgpMessage.isSigned )
                 {
@@ -444,32 +443,6 @@ public class PGP {
         }
         throw(new Exception("Couldn't zip data packet!"));
     }
-    private static void checkIfEncrypted(
-            InputStream inputStream,
-            PgpMessage pgpMessage,
-            PgpDecryptionState pgpDecryptionState ) throws IOException
-    {
-        PGPObjectFactory pgpObjectFactory = new PGPObjectFactory( inputStream, new BcKeyFingerprintCalculator() );
-        pgpDecryptionState.pgpObject = pgpObjectFactory.nextObject();
-
-        // Determine if the message is encrypted
-        pgpMessage.isEncrypted = false;
-        if( pgpDecryptionState.pgpObject instanceof PGPEncryptedDataList )
-        {
-            pgpDecryptionState.encryptedDataList = ( PGPEncryptedDataList )pgpDecryptionState.pgpObject;
-            pgpMessage.isEncrypted = true;
-        }
-        else if( pgpDecryptionState.pgpObject instanceof PGPMarker )
-        {
-            pgpDecryptionState.pgpObject = pgpObjectFactory.nextObject();
-            if( pgpDecryptionState.pgpObject instanceof PGPEncryptedDataList )
-            {
-                pgpDecryptionState.encryptedDataList = ( PGPEncryptedDataList )pgpDecryptionState.pgpObject;
-                pgpMessage.isEncrypted = true;
-            }
-        }
-    }
-
     
     
     public static byte[] encrypt(byte[] msg_, int algorithm_, PGPPublicKey receiverPublicKey) throws Exception {
